@@ -293,3 +293,99 @@ def test_case_identifiers_are_tenant_scoped_without_collision_oracle(api):
         "/api/cases", headers=headers, json={"id": "DEMO-ALPHA", "payload": example_payload()}
     )
     assert own_duplicate.status_code == 409
+
+
+def test_expired_credential_is_401_at_http_boundary(api, monkeypatch):
+    c, t, s, a = api
+    expires = s.identity(a["qa"])["expires"]
+    monkeypatch.setattr("workbench.store.now", lambda: expires)
+    for path in ["/api/me", "/api/cases", "/api/obligations", "/api/cases/DEMO-ALPHA/documents"]:
+        response = c.get(path, headers=hdr(t["qa"]))
+        assert response.status_code == 401
+        assert response.headers["www-authenticate"] == "Bearer"
+
+
+@pytest.mark.parametrize(
+    "operation,role",
+    [
+        ("create", "qa"),
+        ("create", "ra"),
+        ("create", "reader"),
+        ("attach", "ra"),
+        ("attach", "reader"),
+        ("approve", "op"),
+        ("approve", "ra"),
+        ("approve", "reader"),
+        ("evaluate", "ra"),
+        ("evaluate", "reader"),
+        ("resolve", "op"),
+        ("resolve", "ra"),
+        ("resolve", "reader"),
+        ("ack", "op"),
+        ("ack", "ra"),
+        ("ack", "reader"),
+        ("notice", "op"),
+        ("notice", "qa"),
+        ("notice", "reader"),
+    ],
+)
+def test_write_endpoint_role_matrix(api, operation, role):
+    from workbench.demo import example_document, example_payload
+
+    c, t, s, a = api
+    t["reader"] = s.provision("reader", "harbor", "Reader")
+    b = s.assemble(a["qa"], "DEMO-ALPHA")
+    d = s.documents(a["qa"], "DEMO-ALPHA")[0]
+    suffix, body = {
+        "create": ("", {"id": "ROLE-CHECK", "payload": example_payload()}),
+        "attach": ("/DEMO-ALPHA/documents", example_document(example_payload(), "identity")),
+        "approve": (f"/DEMO-ALPHA/documents/{d['id']}/approval", None),
+        "evaluate": ("/DEMO-ALPHA/evaluations", None),
+        "resolve": (
+            "/DEMO-ALPHA/resolutions",
+            {"bundle_id": b["id"], "reason_code": "IDENTITY_UNVERIFIED", "document_id": d["id"]},
+        ),
+        "ack": (
+            "/DEMO-ALPHA/acknowledgements",
+            {
+                "bundle_id": b["id"],
+                "expected_hash": b["hash"],
+                "signer_label": "role",
+                "outcome": "REVIEW_ACCEPTED",
+                "idempotency_key": "role-test",
+            },
+        ),
+        "notice": (
+            "/DEMO-ALPHA/obligations",
+            {
+                "reportability": "UNKNOWN",
+                "deadline": None,
+                "basis": "SYNTHETIC basis",
+                "status": "PENDING",
+            },
+        ),
+    }[operation]
+    assert c.post("/api/cases" + suffix, headers=hdr(t[role]), json=body).status_code == 403
+    assert c.post("/api/cases" + suffix, json=body).status_code == 401
+
+
+def test_reader_endpoint_coverage_and_cross_tenant_reads(api):
+    c, t, s, a = api
+    reader = s.provision("reader", "harbor", "Reader")
+    b = s.assemble(a["qa"], "DEMO-ALPHA")
+    for path in [
+        "/api/me",
+        "/api/cases",
+        "/api/obligations",
+        "/api/cases/DEMO-ALPHA",
+        "/api/cases/DEMO-ALPHA/documents",
+        "/api/cases/DEMO-ALPHA/evaluations",
+        "/api/cases/DEMO-ALPHA/acknowledgements",
+        "/api/cases/DEMO-ALPHA/obligations",
+        f"/api/bundles/{b['id']}",
+        f"/api/bundles/{b['id']}/replay",
+    ]:
+        assert c.get(path, headers=hdr(reader)).status_code == 200
+        assert c.get(path).status_code == 401
+        if path.startswith("/api/cases/DEMO") or path.startswith("/api/bundles/"):
+            assert c.get(path, headers=hdr(t["other"])).status_code == 403

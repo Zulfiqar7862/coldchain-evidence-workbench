@@ -371,3 +371,55 @@ def test_unversioned_existing_tables_are_refused_not_adopted(tmp_path):
     with pytest.raises(ValueError, match="schema.*migration"):
         Store(path)
     assert path.read_bytes() == before
+
+
+@pytest.mark.parametrize("offset_seconds, allowed", [(-1, True), (0, False), (1, False)])
+def test_expiry_boundary_rechecked_for_retained_credentials(
+    env, monkeypatch, offset_seconds, allowed
+):
+    from datetime import datetime, timedelta
+
+    s, a, t = env
+    expires = s.identity(a["qa"])["expires"]
+    instant = datetime.fromisoformat(expires) + timedelta(seconds=offset_seconds)
+    monkeypatch.setattr("workbench.store.now", lambda: instant.isoformat())
+    if allowed:
+        assert s.authenticate(t["qa"])
+        assert s.cases(a["qa"]) == []
+    else:
+        with pytest.raises(PermissionError):
+            s.authenticate(t["qa"])
+        with pytest.raises(PermissionError):
+            s.cases(a["qa"])
+
+
+def test_approval_alone_invalidates_an_otherwise_current_bundle(env):
+    from workbench.demo import example_document
+
+    s, a, _ = env
+    create(s, a["op"])
+    attach_all(s, a)
+    d = s.attach(
+        a["op"], "DEMO-ALPHA", example_document(s.case(a["qa"], "DEMO-ALPHA")["input"], "identity")
+    )
+    before = s.assemble(a["qa"], "DEMO-ALPHA")
+    assert before["result"]["tasks"] == []
+    count = len(s.documents(a["qa"], "DEMO-ALPHA"))
+    s.approve(a["qa"], "DEMO-ALPHA", d["id"])
+    assert len(s.documents(a["qa"], "DEMO-ALPHA")) == count
+    assert len(s.bundles(a["qa"], "DEMO-ALPHA")) == 1
+    with pytest.raises(ValueError, match="evidence changed"):
+        s.acknowledge(
+            a["qa"],
+            "DEMO-ALPHA",
+            before["id"],
+            before["hash"],
+            "QA role",
+            "REVIEW_ACCEPTED",
+            "approval-only-change",
+        )
+    assert s.replay(a["qa"], before["id"])["matches"]
+    assert s.acknowledgements(a["qa"], "DEMO-ALPHA") == []
+    after = s.assemble(a["qa"], "DEMO-ALPHA")
+    assert after["parent_id"] == before["id"]
+    assert after["revision"] != before["revision"]
