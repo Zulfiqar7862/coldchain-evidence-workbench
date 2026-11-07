@@ -94,7 +94,8 @@ All `/api` endpoints require Bearer authentication; tenant is derived server-sid
 401 invalid/missing/expired key; 403 inaccessible object/role; 422 invalid typed body;
 409 domain/integrity/state/duplicate conflict; 413 oversized body; 503 storage operational error.
 JSON body reference IDs must be positive integers: strings, floats and booleans are rejected rather
-than coerced. URL path integers are parsed separately. Unknown fields in write models are rejected. Extra query strings such as `tenant=...` cannot change membership.
+than coerced. All numeric HTTP references are bounded to SQLite signed-64-bit positive IDs; oversized
+values return 422 before SQL binding. URL path integers are parsed separately (not strict JSON types). Unknown fields in write models are rejected. Extra query strings such as `tenant=...` cannot change membership.
 `GET /healthz` is liveness only; it does not prove database readiness.
 
 ## Transactions, retries and concurrency

@@ -12,9 +12,9 @@ From repository root, with separate private coverage files per interpreter:
 | Exact command | Exit | Observed result |
 |---|---:|---|
 | `uv sync --locked` | 0 | Locked environment synchronized |
-| `uv run --locked python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **144 passed**, Python **3.14.10**; **671 statements, 69 missed, 90%** |
-| `uv run --isolated --locked --python 3.12 python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **144 passed**, Python **3.12.16**; **720 statements, 68 missed, 91%** |
-| `uv run --isolated --locked --python 3.13 python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **144 passed**, Python **3.13.5**; **720 statements, 68 missed, 91%** |
+| `uv run --locked python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **152 passed**, Python **3.14.10**; **674 statements, 69 missed, 90%** |
+| `uv run --isolated --locked --python 3.12 python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **152 passed**, Python **3.12.16**; **723 statements, 68 missed, 91%** |
+| `uv run --isolated --locked --python 3.13 python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **152 passed**, Python **3.13.5**; **723 statements, 68 missed, 91%** |
 | `uv run --locked ruff check .` | 0 | All checks passed |
 | `uv run --locked ruff format --check .` | 0 | Formatting clean |
 | `npm ci --ignore-scripts --no-audit` | 0 | Locked development-only DOM dependencies; no install scripts/browser process |
@@ -27,7 +27,7 @@ From repository root, with separate private coverage files per interpreter:
 | `uv run --locked python -m compileall -q workbench scripts` | 0 | Compilation accepted; not full static typing |
 | `pdfinfo docs/position-paper.pdf` | 0 | Existing printable position paper remains **3 A4 pages** |
 
-Suite composition: **43 API + 27 contract + 3 demo/backup + 34 domain + 5 reference/text + 32 store = 144**.
+Suite composition: **43 API + 34 contract + 3 demo/backup + 34 domain + 6 reference/text + 32 store = 152**.
 Contract tests span HTTP and Store; they are not double-counted. The 112-test published baseline is
 historical, not the current total. Coverage statement accounting differs across Python versions; never
 combine the 3.14 denominator with 3.12/3.13. Subprocess CLI/tutorial code is exercised but is not included
@@ -35,9 +35,12 @@ in `--cov=workbench`; CLI in-process coverage remains 0%. This is statement cove
 
 ### What the text tests do—and do not do
 
-`tests/test_reference.py` checks local Markdown links/anchors/assets, real named Python test references,
+`tests/test_reference.py` checks current per-interpreter test totals against real collection, local Markdown
+links/anchors/assets, real named Python test references,
 one company entrypoint, retained synthetic/qualification boundaries, real tutorial CLI help, and removal
-of the duplicated embedded program. No external link crawls or private source uploads occur. The smoke
+of the duplicated embedded program. Current Python totals are checked against actual collection; a stale-table negative control failed as
+expected. The first regex also captured Node/historical totals and was corrected before that control.
+This does not validate coverage percentages. No external link crawls or private source uploads occur. The smoke
 executes the exact documented tutorial command through real HTTP. The checks caught and helped correct a real stale section anchor during consolidation. A human still reviews semantics,
 private source citations, design accuracy and terminology; string checks cannot establish clinical truth.
 
@@ -48,7 +51,7 @@ Using Python 3.12, `python -m venv .venv` and
 `python -m pip install --require-hashes -r requirements.txt` succeeded. Package import was verified to
 come from that extraction, not the working repository. With runtime dependencies only, the actual
 `python -m workbench demo` server and documented four-task client passed through real loopback HTTP.
-Then a separate new environment ran `uv sync --locked`, **144 tests** and restart smoke successfully.
+Then a separate new environment ran `uv sync --locked`, **152 tests** and restart smoke successfully.
 The reduced lockfile was tested again from a new archive after removing unused legacy `httpx`;
 framework-selected `httpx2` remains. This is executable evidence for both quickstarts, not a clone-only claim.
 
@@ -68,11 +71,15 @@ outside the public tree. Independent review is still required before publishing 
 - A source below the byte limit with extreme nesting produced an actual **RecursionError on Python 3.12**;
   Python 3.14 accepted it. Added a consistent 64-container resource limit and converted parser recursion to
   controlled conflict. The first smaller nesting probe was accepted; no 3.14 exception is claimed.
-  Final nesting RED on 3.12: **1 failed / 7 passed**; final contract suite **27 passed**. Depth-boundary checks
+  Final nesting RED on 3.12: **1 failed / 7 passed**; source-guard stage **27 passed**. Depth-boundary checks
   were added afterward as verification, not retrospectively called failing discoveries.
 - Reference tests: **3 failed / 2 passed** before the consolidated entrypoint and executable tutorial existed.
-  The real-socket tutorial command also failed before the module existed. Final reference suite **5 passed**;
+  The real-socket tutorial command also failed before the module existed. Final reference suite **6 passed**;
   socket smoke now executes all four completions and verifies repeat refusal and unchanged notice state.
+
+- **Seven more HTTP failures** demonstrated oversized numeric body/path IDs: six reached SQLite binding
+  with OverflowError and one returned a domain conflict. All now reject as 422 within the declared
+  signed-64-bit positive range. No schema/data migration was needed.
 
 No new clinical rule, source approval, legal reporting date or human identity was invented by these fixes.
 Exact source bytes stay unchanged. Schema remains v2 and evaluator remains v1: admission is stricter,

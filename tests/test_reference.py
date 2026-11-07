@@ -97,3 +97,22 @@ def test_public_reference_keeps_demo_qualification_and_operations_boundaries():
         assert phrase in text
     assert "127.0.0.1:8174" in text
     assert "UI dom-reset-v3" in text
+
+
+def test_current_verification_ledger_count_matches_real_collection():
+    collected = subprocess.run(
+        [sys.executable, "-m", "pytest", "--collect-only", "-q"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+    assert collected.returncode == 0, collected.stderr
+    match = re.search(r"(\d+) tests collected", collected.stdout)
+    assert match, collected.stdout
+    ledger = (ROOT / "docs/acceptance.md").read_text()
+    reported = re.findall(
+        r"^\|.*python -m pytest.*\*\*(\d+) passed\*\*", ledger, flags=re.MULTILINE
+    )
+    assert len(reported) == 3, "Current ledger needs one observed total per supported interpreter"
+    assert all(value == match.group(1) for value in reported), (reported, match.group(1))

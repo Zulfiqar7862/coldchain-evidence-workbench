@@ -195,3 +195,16 @@ Git/runtime/private inputs: fresh hash-pinned plain venv, real demo HTTP and fou
 new locked uv environment with 144 tests and restart smoke. Repeated that check after the justified
 legacy dependency removal. Bounded tracked/history/PDF/known-key scans found no matches. The private
 source-alignment report remains separate; no public push or new browser acceptance is claimed.
+
+A final bounded HTTP input probe found one more concrete gap: positive integers larger than SQLite's
+signed-64-bit ID range reached SQL binding and raised OverflowError (one resolution-reference case
+returned a domain conflict rather than typed rejection). Seven HTTP regressions failed before bounding
+numeric body and URL references consistently; this is an implementation/storage limit, not a clinical
+rule or schema migration. Repeated final verification after this focused fix.
+
+Added a real-collection text assertion so current ledger test totals cannot silently remain stale after
+new regressions. The first regex mistakenly included Node/historical totals; corrected that harness,
+then verified a negative control by temporarily replaying the prior stale Python totals and restoring
+the current ledger. This is a documented verification control, not an extra production-bug discovery.
+Current final totals supersede the
+intermediate 144-test verification above; historical results remain labelled historical.

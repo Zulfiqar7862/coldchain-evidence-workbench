@@ -106,3 +106,53 @@ def test_source_json_container_depth_boundary(api, arrays, expected):
         ).status_code
         == expected
     )
+
+
+@pytest.mark.parametrize(
+    "operation",
+    [
+        "supersedes",
+        "ack",
+        "resolution_bundle",
+        "resolution_doc",
+        "approval_path",
+        "bundle_path",
+        "replay_path",
+    ],
+)
+def test_oversized_sqlite_reference_is_validation_error_not_server_exception(api, operation):
+    client, tokens, store, actors = api
+    huge = 2**63
+    bundle = store.assemble(actors["qa"], "DEMO-ALPHA")
+    base = "/api/cases/DEMO-ALPHA"
+    method, payload = "POST", None
+    if operation == "supersedes":
+        path = base + "/documents"
+        payload = example_document(example_payload(), "identity")
+        payload["supersedes"] = huge
+    elif operation == "ack":
+        path = base + "/acknowledgements"
+        payload = {
+            "bundle_id": huge,
+            "expected_hash": bundle["hash"],
+            "signer_label": "SYNTHETIC QA",
+            "outcome": "REVIEW_ACCEPTED",
+            "idempotency_key": "huge-id",
+        }
+    elif operation.startswith("resolution"):
+        path = base + "/resolutions"
+        payload = {
+            "bundle_id": huge if operation == "resolution_bundle" else bundle["id"],
+            "document_id": huge if operation == "resolution_doc" else 1,
+            "reason_code": "BATCH_HISTORY",
+        }
+    elif operation == "approval_path":
+        path = base + f"/documents/{huge}/approval"
+    else:
+        path, method = (
+            f"/api/bundles/{huge}" + ("/replay" if operation == "replay_path" else ""),
+            "GET",
+        )
+    response = client.request(method, path, json=payload, headers=hdr(tokens["qa"]))
+    assert response.status_code == 422
+    assert len(store.queue(actors["qa"])) == 1

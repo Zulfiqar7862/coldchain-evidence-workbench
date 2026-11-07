@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Annotated, Literal
 
 from fastapi import Depends, FastAPI
+from fastapi import Path as PathParameter
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -18,7 +19,9 @@ from workbench.store import Store
 Text = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=500)]
 Identifier = Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9_-]{1,80}$")]
 Hash = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
-PositiveId = Annotated[int, Field(strict=True, gt=0)]
+SQLITE_ID_MAX = 2**63 - 1
+PositiveId = Annotated[int, Field(strict=True, gt=0, le=SQLITE_ID_MAX)]
+PathId = Annotated[int, PathParameter(gt=0, le=SQLITE_ID_MAX)]
 
 
 class Scope(StrictModel):
@@ -224,7 +227,7 @@ def create_app(path):
         return store.attach(a, case_id, body.model_dump(mode="json"))
 
     @app.post("/api/cases/{case_id}/documents/{doc_id}/approval")
-    def approve(case_id: Identifier, doc_id: int, a: Auth):
+    def approve(case_id: Identifier, doc_id: PathId, a: Auth):
         return store.approve(a, case_id, doc_id)
 
     @app.post("/api/cases/{case_id}/evaluations")
@@ -236,11 +239,11 @@ def create_app(path):
         return store.bundles(a, case_id)
 
     @app.get("/api/bundles/{bundle_id}")
-    def bundle(bundle_id: int, a: Auth):
+    def bundle(bundle_id: PathId, a: Auth):
         return store.bundle(a, bundle_id)
 
     @app.get("/api/bundles/{bundle_id}/replay")
-    def replay(bundle_id: int, a: Auth):
+    def replay(bundle_id: PathId, a: Auth):
         return store.replay(a, bundle_id)
 
     @app.post("/api/cases/{case_id}/resolutions")
