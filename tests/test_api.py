@@ -389,3 +389,11 @@ def test_reader_endpoint_coverage_and_cross_tenant_reads(api):
         assert c.get(path).status_code == 401
         if path.startswith("/api/cases/DEMO") or path.startswith("/api/bundles/"):
             assert c.get(path, headers=hdr(t["other"])).status_code == 403
+
+
+def test_browser_favicon_probe_is_empty_and_cache_safe(api):
+    c, _, _, _ = api
+    response = c.get("/favicon.ico")
+    assert response.status_code == 204
+    assert response.content == b""
+    assert response.headers["cache-control"] == "no-store"

@@ -6,7 +6,7 @@ from typing import Annotated, Literal
 
 from fastapi import Depends, FastAPI
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.staticfiles import StaticFiles
 from pydantic import AwareDatetime, Field, StrictBool, StringConstraints
@@ -187,6 +187,10 @@ def create_app(path):
     def health():
         # Deliberately liveness only; authenticated reads exercise readiness.
         return {"status": "alive", "mode": "SYNTHETIC_LOCAL_DEMO"}
+
+    @app.get("/favicon.ico", include_in_schema=False)
+    def favicon():
+        return Response(status_code=204)
 
     @app.get("/api/me")
     def me(a: Auth):
