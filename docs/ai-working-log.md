@@ -98,3 +98,27 @@ audit reported cache-deserialization warnings but no known vulnerabilities; inst
 was clean. After the browser worker finished, preserved its v1 runtime, stopped that process and started
 a fresh v2 runtime on the same loopback port. Read-only live HTTP checks passed. Repaired visual UI review
 and independent publication/security approval remain pending; no remote was created or pushed.
+
+## Failed v2 browser retest and DOM reset follow-up
+
+Independent browser retest FAILED: old case/product/route persisted with an empty Reader tenant, even
+after in-app refresh. Publication remained blocked. Loaded debugging/TDD guidance and inspected actual
+markup, CSS and served asset bytes instead of attributing this to caching. CSS already enforced hidden
+with `!important`; parsed markup IDs were unique. The served JS matched the working tree and was no-store.
+A private exact-snapshot DOM probe reproduced the screenshot pattern with initial script execution, not
+fresh v2 execution. The failed browser tab's executing asset identity cannot be recovered here; an old
+open tab is a hypothesis, not an established cache diagnosis.
+
+Added locked, development-only jsdom 31 tests against actual HTML/CSS, using the documented Node VM
+context API. The first harness used strict eval and lost callable lexical scope; fixed the harness before
+accepting RED. Four actual-DOM assertions then failed: empty-list refresh retained residual case text,
+old disclosure state remained open, and executing build identity was absent. Added a further failing
+form-reset test and an HTTP build-contract test. Implemented explicit selection invalidation and erasure,
+separate empty/detail states, disclosure/form reset and a visible script build marker/versioned assets.
+The full login/lock/reader/refresh and delayed case-response workflows passed after the fix. Those added
+workflow checks are verification, not retroactively claimed RED discoveries.
+
+The new DOM library is only a development dependency, pinned in package-lock.json; Node is still not an
+application runtime. No browser process, screenshot automation, original data or external case API was
+used. Fresh Python, Node, lint, audits and real-socket persistence smoke results are in acceptance.md.
+A new independent browser retest is required; no public remote or publication has been performed.

@@ -17,8 +17,8 @@ independent of review.
 ## Run it in three steps
 
 Requires Python **3.12–3.14** and [uv](https://docs.astral.sh/uv/getting-started/installation/).
-No Docker, Node build, database server, account or paid API is needed. Node 20+ is used only for
-the dependency-free JavaScript race tests (`node --test tests/ui-races.cjs`), not to run the app.
+No Docker, Node build, database server, account or paid API is needed. Node **24.15+ (24.x)** and npm are needed only for development DOM/race tests, not to run the app.
+The UI has no Node build step.
 
 ```bash
 # 1. Inside this repository
@@ -35,6 +35,8 @@ Open **http://127.0.0.1:8174** and paste that key into “Local role key”.
 Keys are generated locally, expire after 24 hours, and remain only in browser memory.
 The server stores hashes, not raw keys. `.runtime/credentials.json` is owner-readable and ignored by Git.
 Never paste keys into issues, screenshots or URLs.
+After updating/restarting the server, **reload the page**, not just “Refresh workspace”. The visible
+marker must read **UI dom-reset-v3**. In-app refresh fetches records; it cannot replace executing JavaScript.
 
 **Without uv:** `python3 -m venv .venv`, activate the venv, then
 `python -m pip install --require-hashes -r requirements.txt` and `python -m workbench demo`.
@@ -109,6 +111,10 @@ uv run --locked ruff check .
 uv run --locked ruff format --check .
 uv run --locked python -m scripts.smoke
 uv run --locked python -m pip_audit -r requirements.txt --require-hashes --disable-pip
+# Development UI tests: Node 24.15+ (24.x), npm; not needed for the demo
+npm ci --ignore-scripts --no-audit
+npm test
+npm audit --audit-level=low
 ```
 
 The smoke command starts a real loopback HTTP server, exercises auth/evaluation/acknowledgement,

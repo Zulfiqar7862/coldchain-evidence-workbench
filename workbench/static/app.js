@@ -11,6 +11,11 @@ const el = (tag, text, className) => {
   if (className) node.className = className;
   return node;
 };
+// Explicit executing-script identity: a server restart cannot replace JS in an open tab.
+const UI_BUILD = "dom-reset-v3";
+document.documentElement.dataset.uiBuild = UI_BUILD;
+$("ui-build").textContent = "UI " + UI_BUILD;
+
 function say(message, error = false) {
   $("status").textContent = message;
   $("status").className = "toast" + (error ? " error" : "");
@@ -159,9 +164,24 @@ function clearCase() {
     "review-label",
   ])
     $(id).value = "";
+  // Erase first, then hide. Visibility is defense in depth, never the erasure boundary.
+  document.querySelectorAll("#case-detail details").forEach((node) => {
+    node.open = false;
+  });
+  $("review-outcome").value = "REVIEW_ACCEPTED";
+  $("notice-reportability").value = "UNKNOWN";
+  $("notice-status").value = "PENDING";
   $("evaluation-panel").hidden = true;
-  $("evaluate").disabled = true;
-  $("ack-button").disabled = true;
+  $("case-detail").hidden = true;
+  $("case-empty").hidden = false;
+  for (const id of ["evaluate", "ack-button", "replay", "download"])
+    $(id).disabled = true;
+}
+function clearSelection() {
+  cancelWhere((c) => c.selection !== null);
+  selectionGeneration++;
+  selectedCase = null;
+  clearCase();
 }
 function beginSession(key) {
   cancelWhere(() => true);
@@ -171,6 +191,9 @@ function beginSession(key) {
   identity = null;
   selectedCase = null;
   clearCase();
+  document.querySelectorAll("#workspace details").forEach((node) => {
+    node.open = false;
+  });
   for (const id of ["case-list", "notification-list"]) $(id).replaceChildren();
   for (const id of ["case-count", "notice-count"]) $(id).textContent = "0";
   $("workspace").hidden = true;
@@ -259,6 +282,9 @@ async function loadCases(parent = sessionContext()) {
     );
     $("case-list").append(b);
   }
+  // A refreshed tenant list is authoritative. Never retain a detail panel when its
+  // selection is absent, even if prior markup/state was stale or forcibly visible.
+  if (!cases.some((c) => c.id === selectedCase)) clearSelection();
   if (!selectedCase && cases.length)
     await selectCase(
       cases.some((c) => c.id === "DEMO-READY") ? "DEMO-READY" : cases[0].id,
@@ -277,13 +303,13 @@ $("refresh").addEventListener("click", () =>
 );
 async function selectCase(id, parent = sessionContext()) {
   check(parent);
-  cancelWhere((c) => c.selection !== null);
-  selectionGeneration++;
+  clearSelection();
   selectedCase = id;
-  clearCase();
   const ctx = caseContext();
   const c = await api("/cases/" + encodeURIComponent(id), {}, ctx);
   check(ctx);
+  $("case-detail").hidden = false;
+  $("case-empty").hidden = true;
   $("selected-case").textContent = id;
   const scope = c.input.scope;
   $("case-scope").textContent =
@@ -327,6 +353,8 @@ async function selectCase(id, parent = sessionContext()) {
 function renderBundle(data, ctx = caseContext()) {
   check(ctx);
   bundle = data;
+  $("replay").disabled = false;
+  $("download").disabled = false;
   $("evaluation-panel").hidden = false;
   const result = data.result;
   const labels = {

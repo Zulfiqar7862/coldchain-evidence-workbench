@@ -8,3 +8,5 @@ htmlcov/
 *.db*
 .env*
 .firecrawl/
+
+node_modules/

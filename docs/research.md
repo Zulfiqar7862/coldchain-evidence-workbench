@@ -50,3 +50,15 @@ CI action refs checked with public read-only `git ls-remote`:
 The Starlette documentation fetch failed at the provider; the installed TestClient warning and a
 successful rerun established the local compatibility observation. No missing page was treated as proof
 that documentation did not exist. We did not install broad “agent frameworks” merely to list them.
+
+## Development-only DOM testing after independent browser failure
+
+Consulted https://github.com/jsdom/jsdom and the full README at
+https://raw.githubusercontent.com/jsdom/jsdom/main/README.md (7 November 2026, Europe/Berlin).
+jsdom 31.0.0 is pinned only for tests in package-lock.json. It parses our actual HTML, exposes DOM/CSSOM
+semantics and provides `getInternalVMContext()` for classic-script lexical state. This closes a gap left
+by the tiny hand-built DOM mock, without installing or driving a browser. It does **not** implement layout
+or visual rendering, so independent browser review remains mandatory. Tests load only our original local
+script, with automatic subresource loading disabled. The installed package's LICENSE.txt was inspected:
+MIT plus bundled W3C/Unicode notices; dependency code is not vendored or relicensed by this repository.
+Node 24.15+ (24.x) and npm are development-only requirements; the Python demo still needs neither.

@@ -25,7 +25,12 @@ jobs:
           version: '0.13.6'
           enable-cache: false
       - run: uv sync --locked --python ${{ matrix.python }}
-      - run: node --version && node --test tests/ui-races.cjs
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+      - run: npm ci --ignore-scripts --no-audit
+      - run: npm test
+      - run: npm audit --audit-level=low
       - run: uv run --locked ruff check .
       - run: uv run --locked ruff format --check .
       - run: uv run --locked python -m pytest --cov=workbench --cov-report=term-missing

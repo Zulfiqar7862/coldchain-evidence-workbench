@@ -397,3 +397,16 @@ def test_browser_favicon_probe_is_empty_and_cache_safe(api):
     assert response.status_code == 204
     assert response.content == b""
     assert response.headers["cache-control"] == "no-store"
+
+
+def test_ui_build_marker_and_versioned_assets_are_no_store(api):
+    c, _, _, _ = api
+    html = c.get("/")
+    assert 'id="ui-build"' in html.text
+    for path in ["/", "/static/app.js?v=dom-reset-v3", "/static/app.css?v=dom-reset-v3"]:
+        response = c.get(path)
+        assert response.status_code == 200
+        assert response.headers["cache-control"] == "no-store"
+    assert "/static/app.js?v=dom-reset-v3" in html.text
+    assert "/static/app.css?v=dom-reset-v3" in html.text
+    assert '"dom-reset-v3"' in c.get("/static/app.js?v=dom-reset-v3").text

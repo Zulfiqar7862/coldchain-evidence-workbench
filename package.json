@@ -1,0 +1,15 @@
+{
+  "name": "coldchain-workbench-dom-tests",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Development-only DOM regressions. No Node application runtime or browser automation.",
+  "engines": {
+    "node": ">=24.15.0 <25"
+  },
+  "scripts": {
+    "test": "node --test tests/ui-races.cjs tests/ui-dom.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "31.0.0"
+  }
+}

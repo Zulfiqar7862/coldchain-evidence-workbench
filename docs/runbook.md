@@ -27,6 +27,15 @@ same approved tenant and role using `Store.provision`; no HTTP provisioning endp
 local-demo facility, not a production identity lifecycle. Revocation requires trusted administrator
 access to set the actor's active field to zero. Never share runtime credentials or DB files publicly.
 
+## Verify the executing UI after an update
+
+A server restart does not replace JavaScript in an already open browser tab. “Refresh workspace” only
+refetches authenticated records. Navigate/reload the page and require the visible marker **UI dom-reset-v3**;
+“UI assets pending” or an absent marker is not the reviewed UI. Asset URLs carry the same build identifier,
+and HTML/JS/CSS responses are no-store. This is observability, not proof of a cache issue or an auth control.
+After locking, case text/fields must be erased synchronously; an empty tenant must show no selected case,
+not old details hidden only by CSS. If any old case data appears, stop use and keep publication blocked.
+
 ## Back up and restore
 
 ```bash

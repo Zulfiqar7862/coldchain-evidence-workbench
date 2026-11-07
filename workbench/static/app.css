@@ -811,3 +811,15 @@ footer {
     flex-wrap: wrap;
   }
 }
+
+.build-marker {
+  position: fixed;
+  bottom: 4px;
+  left: 8px;
+  padding: 3px 6px;
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 9px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}

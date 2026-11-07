@@ -8,8 +8,8 @@
       content="Synthetic evidence-first cold-chain review workbench. Not a clinical decision system."
     />
     <title>Evidence Workbench · Synthetic demonstration</title>
-    <link rel="stylesheet" href="/static/app.css" />
-    <script src="/static/app.js" defer></script>
+    <link rel="stylesheet" href="/static/app.css?v=dom-reset-v3" />
+    <script src="/static/app.js?v=dom-reset-v3" defer></script>
   </head>
   <body>
     <header class="topbar">
@@ -115,7 +115,19 @@
             an out-of-envelope result. None is a clinical verdict.
           </div>
         </aside>
-        <section class="case-detail" aria-labelledby="selected-case">
+        <section id="case-empty" class="case-detail" aria-live="polite">
+          <h2>No selected case</h2>
+          <p>
+            Select an accessible case to inspect. An empty tenant has no case
+            details.
+          </p>
+        </section>
+        <section
+          id="case-detail"
+          class="case-detail"
+          aria-labelledby="selected-case"
+          hidden
+        >
           <div class="case-title">
             <div>
               <p class="eyebrow" id="case-caption">EVIDENCE FILE</p>
@@ -264,6 +276,9 @@
         >
       </footer>
     </main>
+    <small id="ui-build" class="build-marker"
+      >UI assets pending — reload if unchanged</small
+    >
     <div
       id="status"
       class="toast"

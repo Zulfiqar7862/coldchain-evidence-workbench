@@ -41,6 +41,7 @@ function harness() {
   };
   const context = vm.createContext({
     document: {
+      documentElement: { dataset: {} },
       getElementById: get,
       createElement: node,
       querySelectorAll: () => [],

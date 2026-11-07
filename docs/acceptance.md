@@ -11,24 +11,26 @@ All commands ran from the repository root unless noted. Raw logs are retained pr
 | Exact command | Observed exit | Observed result |
 |---|---:|---|
 | `uv sync --locked` | 0 | Locked local environment created |
-| `uv run --locked python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **111 passed** on Python 3.13.5; 90% statement coverage (**690 statements, 68 missed**); no warnings |
-| `uv run --isolated --locked --python 3.12 python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **111 passed**, Python 3.12.16; **690 statements, 68 missed, 90%** |
-| `uv run --isolated --locked --python 3.14 python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **111 passed**, Python 3.14.10; **644 statements, 68 missed, 89%** |
+| `uv run --locked python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **112 passed** on Python 3.13.5; 90% statement coverage (**690 statements, 68 missed**); no warnings |
+| `uv run --isolated --locked --python 3.12 python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **112 passed**, Python 3.12.16; **690 statements, 68 missed, 90%** |
+| `uv run --isolated --locked --python 3.14 python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **112 passed**, Python 3.14.10; **644 statements, 68 missed, 89%** |
 | `uv run --locked ruff check .` | 0 | All checks passed |
 | `uv run --locked ruff format --check .` | 0 | Formatting clean |
 | `npx --yes prettier@3.6.2 --write workbench/static/index.html workbench/static/app.js workbench/static/app.css` | 0 | Frontend source formatted for human readability; not a required runtime tool |
-| `node --test tests/ui-races.cjs` | 0 | **15 passed** on Node 24.22.1; real application JS in a minimal Node VM/DOM harness, delayed transport/body/errors, all asynchronous read/action paths; not a browser suite |
+| `npm ci --ignore-scripts --no-audit` | 0 | Locked development-only jsdom installation; no install scripts or browser process |
+| `npm test` | 0 | **23 passed** on Node 24.22.1: 15 delayed-response tests plus 8 actual-markup DOM/CSS/tenant-switch tests; not visual browser rendering |
+| `npm audit --audit-level=low` | 0 | No known vulnerabilities in the DOM test dependency tree |
 | `node --check workbench/static/app.js` | 0 | JavaScript syntax accepted; not a visual browser test |
 | `uv run --locked python -m compileall -q workbench scripts` | 0 | Python compilation accepted; not static type checking |
 | `uv run --locked python -m scripts.smoke` | 0 | Real HTTP auth, three synthetic cases, evaluation, QA acknowledgement, unchanged deadline queue, full process restart, original replay and tenant denial |
 | `uv export --locked --no-dev --no-emit-project --output-file requirements.txt` | 0 | Hash-pinned runtime export |
-| `uv run --locked python -m pip_audit -r requirements.txt --require-hashes --disable-pip` | 0 | No known vulnerabilities found in runtime export; harmless audit-cache deserialization warnings observed |
+| `uv run --locked python -m pip_audit -r requirements.txt --require-hashes --disable-pip` | 0 | No known vulnerabilities found in runtime export; latest rerun had no warnings |
 | `uv run --locked python -m pip_audit` | 0 | No known vulnerabilities found in installed runtime + development environment after asset-tool upgrade |
 | `weasyprint docs/position-paper.html docs/position-paper.pdf` | 0 | Original position paper rendered; `pdfinfo` reports **3 A4 pages** |
 
-Post-review Python suite composition: **42 HTTP, 3 demo/backup, 34 domain, 32 store tests**. Each
+Post-review Python suite composition: **43 HTTP, 3 demo/backup, 34 domain, 32 store tests**. Each
 coverage run used a separate private `COVERAGE_FILE`. Interpreter/tool line accounting differs: the
-Python 3.14 denominator is not interchangeable with 3.12/3.13. The earlier 80-test result is superseded;
+Python 3.14 denominator is not interchangeable with 3.12/3.13. The earlier 80/111-test results are superseded;
 no single old coverage percentage is presented as the current cross-version result.
 
 Coverage is a diagnostic, not a safety score. The CLI module is exercised by real-process smoke but is
@@ -78,9 +80,40 @@ metadata and a cross-tenant case-ID collision oracle. These were defects, not me
 All raw RED/GREEN diagnostics remain outside Git, including ephemeral disposable test credentials.
 The Node regressions are included in CI. CI itself remains unobserved remotely. The initial build was
 visually exercised by an independent browser worker (evaluation/replay/tasks/acknowledgement/queue passed,
-transient tenant leak observed); **visual retest of the repaired build is pending**. Fresh repaired runtime
+transient tenant leak observed); **the subsequent v2 browser retest FAILED with persistent detail under an empty reader tenant**.
+The further DOM-reset repair below requires another independent visual retest; publication remains blocked. Fresh repaired runtime
 HTTP checks passed: three authorized cases, empty other tenant, review metadata, seeded replay, no-store
 assets, authentication denial and favicon 204. A separate real-process smoke tested restart/persistence.
+
+## Real-markup follow-up after failed v2 browser retest
+
+The v2 browser screenshot showed an empty Reader tenant with an old case label/product/route and enabled
+assembly button. We do **not** count the earlier Node mock tests as proof this browser defect was fixed.
+
+Investigation used the real HTML/CSS and application script in jsdom (Node-only, no browser automation).
+IDs were unique and the existing `[hidden] { display:none !important }` rule worked in CSSOM; no stylesheet
+collision was demonstrated. The server returned the expected script bytes and `Cache-Control: no-store`.
+A fresh exact-snapshot DOM login/lock/reader/refresh probe reproduced the screenshot's persistent text and
+enabled button with the **initial** script, but not with fresh v2 script execution. Which script the failed
+browser tab was executing was not observable retrospectively; **no cache cause is asserted**.
+
+A genuine recovery defect was independently reproduced: `loadCases()` updated the empty list/count but did
+not invalidate an absent selection or erase residual detail. Four real-DOM assertions failed before the
+fix (including residual text in both selected/unselected empty-list states, retained disclosure state and
+missing build identity); one additional form-choice reset assertion failed before its fix. An initial
+strict-eval harness scope error was corrected and is not counted as RED. A separate HTTP build contract
+also failed before versioned assets/marker existed. Full fresh login and late-response real-DOM workflows
+were subsequently added as verification coverage, not falsely claimed as extra discoveries.
+
+The new implementation clears all case text, containers, labels/titles and fields **before** hiding;
+closes disclosures and resets unsubmitted choices; gives detail/empty states separate IDs; invalidates
+removed selections and pending selection requests; and enables detail only after an authorized response.
+Empty-list refresh now erases residual data even if CSS visibility is forced. The visible executing-script
+marker is **UI dom-reset-v3**, with matching versioned asset URLs; UI/assets remain no-store. Server restart
+and in-app refresh do not update already executing scripts: navigate/reload and verify the marker.
+
+Eight actual-markup DOM/CSS tests and fifteen transport race tests pass. jsdom has no layout/rendering
+engine, so these results **do not replace the still-pending independent visual browser retest**.
 
 ## Representative invariants and named tests
 
@@ -129,7 +162,7 @@ production capacity, multi-tenancy fairness or notification compliance.
 | Real signing / MFA / dual professional signers | Deferred; local acknowledgement explicitly not legal signing |
 | Verified regulator delivery and receipts | Deferred; SENT is a role's assertion, not actual transmission |
 | Captured hash-checked inputs and linked replay | Implemented/tested; proves reproducibility, not evidence truth |
-| Frontend controls and API wiring | Implemented; 15 Node race regressions/API/syntax checked; initial visual review found the fixed race; repaired visual retest pending |
+| Frontend controls and API wiring | Implemented; 23 Node race/actual-DOM regressions and API/syntax checked; v2 browser retest failed; new identifiable build visual retest pending |
 | Metrics, fair scheduling, regional PostgreSQL/RLS/WORM | Designed; not implemented/executed |
 | CI YAML | Configured with pinned actions/read-only permissions; **not yet observed** on GitHub |
 | Internet hardening / production or clinical qualification | Not performed |
