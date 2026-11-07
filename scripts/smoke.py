@@ -93,6 +93,47 @@ def run():
                 },
             )
             assert ack["actor"] == "harbor-qa"
+            # Execute exactly the documented client, not a second copy of its workflow.
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "scripts.resolve_questions",
+                    "--runtime",
+                    str(runtime),
+                    "--port",
+                    str(port),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=20,
+                check=True,
+            )
+            summary = json.loads(completed.stdout)
+            assert summary["completed"] == 4
+            assert summary["original_tasks"] == 4
+            assert summary["current_result"] == "WITHIN_SYNTHETIC_POLICY"
+            assert summary["pending_obligations"] == 3
+            documents_before = request("/api/cases/DEMO-QUESTIONS/documents")
+            evaluations_before = request("/api/cases/DEMO-QUESTIONS/evaluations")
+            retry = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "scripts.resolve_questions",
+                    "--runtime",
+                    str(runtime),
+                    "--port",
+                    str(port),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=20,
+            )
+            assert retry.returncode != 0
+            assert "fresh synthetic questions case" in retry.stderr
+            assert request("/api/cases/DEMO-QUESTIONS/documents") == documents_before
+            assert request("/api/cases/DEMO-QUESTIONS/evaluations") == evaluations_before
             before = request("/api/obligations")
             assert len(before) == 3 and before[0]["case_id"] == "DEMO-QUESTIONS"
         finally:
@@ -107,7 +148,7 @@ def run():
             process.terminate()
             process.wait(timeout=5)
         print(
-            "PASS: real HTTP auth, 3 synthetic cases, evidence evaluation, local QA acknowledgement, independent deadlines, process restart, captured replay, cross-tenant denial"
+            "PASS: real HTTP auth, 3 synthetic cases, evidence evaluation, four task resolutions via documented CLI, local QA acknowledgement, independent deadlines, process restart, captured replay, cross-tenant denial"
         )
 
 

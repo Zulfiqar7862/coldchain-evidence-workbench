@@ -147,3 +147,51 @@ Publication side effect observed: the committed monthly Dependabot configuration
 four dependency-update PRs (#1–#4). No PR creation API/command or merge was performed by the implementation;
 these service-created PRs were left unmerged and unmodified, rather than silently closing them without
 an explicit instruction. This is reported separately from the successful reviewed-branch CI.
+
+## Owner follow-up: audit, text testing and company reference
+
+Re-hashed the newly supplied private attachments instead of assuming identity: they match the prior
+originals. Read the full brief locally and workbook README before all-tab coordinate-preserving
+inspection. Kept actual names/IDs, exact source citations, business targets and clinical clarification
+questions in the private register. No source was uploaded to a parsing/model API. No original clinical
+outcome was computed; historical labels and non-random sampling remain explicitly insufficient.
+
+The restored workspace was missing local Git refs although the expected commit object existed.
+Recovered only the missing local branch ref non-destructively from the verified object, then checked
+branch/remote/owner read-only. No reset, force, remote write or old-repository modification was used.
+The published baseline passed 112 Python tests and 23 Node tests before changes.
+
+Used brainstorming/planning/TDD/debugging/verification guidance for a bounded choice: preserve the
+architecture, tighten demonstrated input-contract gaps and create one company reading path rather
+than add frameworks or a second design. Twenty-three focused contract assertions failed before fixes;
+exact-byte preservation already passed. Corrected an initial expected HTTP status to the documented
+409 before the accepted RED rerun. Standard JSON parsing silently accepted duplicate keys/nonfinite
+constants; body integer references coerced booleans/floats/strings; a forged non-string internal
+Credential reached hashing instead of returning authorization denial. Fixed those roots without
+changing clinical semantics. An extreme source nesting probe raised RecursionError on Python 3.12,
+not 3.14; bounded nesting consistently and kept diagnostics generic. Later boundary checks are
+verification, not claimed pre-fix discoveries.
+
+Added offline documentation tests before the new entrypoint (three failed, two already passed).
+Merged the separate interview walkthrough into the company reference; retained HLD/LLD as the single
+technical contracts. Replaced the long embedded demo program with one maintained executable tutorial,
+then exercised it via real HTTP in smoke, including repeat refusal without extra writes. Did not delete
+negative/security/audit tests or the required printable position paper. SOLID explanation names actual
+responsibilities and admits the concrete Store/no interchangeable adapters rather than inventing interfaces.
+
+A direct development dependency initially looked unused by source search. A fresh isolated Python 3.12
+environment exposed the framework's optional test-client adapter dependency via a deprecation warning;
+restored it and reran cleanly. Then inspected the installed framework adapter: it selects `httpx2`,
+and the inverse dependency tree showed legacy `httpx` was only our unused direct development entry.
+Removed that legacy fallback dependency, not the required adapter, and verified clean environments again.
+This is why import searches alone are insufficient and clean environments matter.
+Fresh matrix, Node, lint, smoke and audits are recorded in acceptance.md with exact interpreter coverage
+counts. No new visual browser pass or remote CI is inferred. Changes remain local pending independent
+review; no fabricated hours, session history, approvals or production-readiness claim is added.
+
+The new text checks actually caught a stale capability-section anchor after the verification page was
+consolidated; corrected the link and saved RED/GREEN. A tracked-tree extraction was exercised without
+Git/runtime/private inputs: fresh hash-pinned plain venv, real demo HTTP and four resolutions, then a
+new locked uv environment with 144 tests and restart smoke. Repeated that check after the justified
+legacy dependency removal. Bounded tracked/history/PDF/known-key scans found no matches. The private
+source-alignment report remains separate; no public push or new browser acceptance is claimed.

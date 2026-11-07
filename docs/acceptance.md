@@ -1,208 +1,133 @@
 # Verification ledger and honest boundaries
 
-Observed locally on **7 November 2026 (Europe/Berlin)**. These are execution results, not production
-qualification. The new source repository is public; an actual completed GitHub Actions run was read,
-with its exact SHA and results below. No CI badge substitutes for reading a run.
+**Local follow-up: 7 November 2026 (Europe/Berlin); changes awaiting independent review, not pushed.**
+Start with the [company reference](company-reference.md) for meaning, roles and requirement-to-code/test
+mapping. This page owns exact execution results. Logs remain private outside Git. No result below is
+clinical qualification, proof of every possible input, or a production-readiness certificate.
 
-## Commands actually executed
+## Current commands actually executed
 
-All commands ran from the repository root unless noted. Raw logs are retained privately outside Git.
+From repository root, with separate private coverage files per interpreter:
 
-| Exact command | Observed exit | Observed result |
+| Exact command | Exit | Observed result |
 |---|---:|---|
-| `uv sync --locked` | 0 | Locked local environment created |
-| `uv run --locked python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **112 passed** on Python 3.13.5; 90% statement coverage (**690 statements, 68 missed**); no warnings |
-| `uv run --isolated --locked --python 3.12 python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **112 passed**, Python 3.12.16; **690 statements, 68 missed, 90%** |
-| `uv run --isolated --locked --python 3.14 python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **112 passed**, Python 3.14.10; **644 statements, 68 missed, 89%** |
+| `uv sync --locked` | 0 | Locked environment synchronized |
+| `uv run --locked python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **144 passed**, Python **3.14.10**; **671 statements, 69 missed, 90%** |
+| `uv run --isolated --locked --python 3.12 python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **144 passed**, Python **3.12.16**; **720 statements, 68 missed, 91%** |
+| `uv run --isolated --locked --python 3.13 python -m pytest -W error::ResourceWarning --cov=workbench --cov-report=term-missing` | 0 | **144 passed**, Python **3.13.5**; **720 statements, 68 missed, 91%** |
 | `uv run --locked ruff check .` | 0 | All checks passed |
 | `uv run --locked ruff format --check .` | 0 | Formatting clean |
-| `npx --yes prettier@3.6.2 --write workbench/static/index.html workbench/static/app.js workbench/static/app.css` | 0 | Frontend source formatted for human readability; not a required runtime tool |
-| `npm ci --ignore-scripts --no-audit` | 0 | Locked development-only jsdom installation; no install scripts or browser process |
-| `npm test` | 0 | **23 passed** on Node 24.22.1: 15 delayed-response tests plus 8 actual-markup DOM/CSS/tenant-switch tests; not visual browser rendering |
-| `npm audit --audit-level=low` | 0 | No known vulnerabilities in the DOM test dependency tree |
-| `node --check workbench/static/app.js` | 0 | JavaScript syntax accepted; not a visual browser test |
-| `uv run --locked python -m compileall -q workbench scripts` | 0 | Python compilation accepted; not static type checking |
-| `uv run --locked python -m scripts.smoke` | 0 | Real HTTP auth, three synthetic cases, evaluation, QA acknowledgement, unchanged deadline queue, full process restart, original replay and tenant denial |
-| `uv export --locked --no-dev --no-emit-project --output-file requirements.txt` | 0 | Hash-pinned runtime export |
-| `uv run --locked python -m pip_audit -r requirements.txt --require-hashes --disable-pip` | 0 | No known vulnerabilities found in runtime export; latest rerun had no warnings |
-| `uv run --locked python -m pip_audit` | 0 | No known vulnerabilities found in installed runtime + development environment after asset-tool upgrade |
-| `weasyprint docs/position-paper.html docs/position-paper.pdf` | 0 | Original position paper rendered; `pdfinfo` reports **3 A4 pages** |
+| `npm ci --ignore-scripts --no-audit` | 0 | Locked development-only DOM dependencies; no install scripts/browser process |
+| `npm test` | 0 | **23 passed** on Node **24.22.1**: 15 transport/session races + 8 actual-markup DOM/CSS tests |
+| `npm audit --audit-level=low` | 0 | Zero known vulnerabilities |
+| `uv run --locked python -m scripts.smoke` | 0 | Real loopback HTTP; auth/evaluation/QA acknowledgement; executable four-task tutorial; old tasks preserved; repeat tutorial refused without writes; independent queue survives full process restart; original replay and empty other tenant |
+| `uv run --locked python -m pip_audit -r requirements.txt --require-hashes --disable-pip` | 0 | No known vulnerabilities in hash-pinned runtime export |
+| `uv run --locked python -m pip_audit` | 0 | No known vulnerabilities in installed runtime + development dependencies |
+| `node --check workbench/static/app.js` | 0 | Syntax accepted; not visual rendering |
+| `uv run --locked python -m compileall -q workbench scripts` | 0 | Compilation accepted; not full static typing |
+| `pdfinfo docs/position-paper.pdf` | 0 | Existing printable position paper remains **3 A4 pages** |
 
-Post-review Python suite composition: **43 HTTP, 3 demo/backup, 34 domain, 32 store tests**. Each
-coverage run used a separate private `COVERAGE_FILE`. Interpreter/tool line accounting differs: the
-Python 3.14 denominator is not interchangeable with 3.12/3.13. The earlier 80/111-test results are superseded;
-no single old coverage percentage is presented as the current cross-version result.
+Suite composition: **43 API + 27 contract + 3 demo/backup + 34 domain + 5 reference/text + 32 store = 144**.
+Contract tests span HTTP and Store; they are not double-counted. The 112-test published baseline is
+historical, not the current total. Coverage statement accounting differs across Python versions; never
+combine the 3.14 denominator with 3.12/3.13. Subprocess CLI/tutorial code is exercised but is not included
+in `--cov=workbench`; CLI in-process coverage remains 0%. This is statement coverage, not branch/safety coverage.
 
-Coverage is a diagnostic, not a safety score. The CLI module is exercised by real-process smoke but is
-not included in subprocess coverage; its in-process coverage is 0%. There is no claim of complete branch,
-fault-injection, production load, security penetration or clinical policy coverage.
+### What the text tests do—and do not do
 
-## Test-first evidence (not retroactively idealized)
+`tests/test_reference.py` checks local Markdown links/anchors/assets, real named Python test references,
+one company entrypoint, retained synthetic/qualification boundaries, real tutorial CLI help, and removal
+of the duplicated embedded program. No external link crawls or private source uploads occur. The smoke
+executes the exact documented tutorial command through real HTTP. The checks caught and helped correct a real stale section anchor during consolidation. A human still reviews semantics,
+private source citations, design accuracy and terminology; string checks cannot establish clinical truth.
 
-- Runnable empty evaluator: **27 failed** before implementation; initial console pytest import error
-  was fixed separately and is not counted as meaningful RED.
-- Unimplemented Store: **21 setup errors**, explicitly not 21 assertion-proven regressions.
-- Runnable empty FastAPI app: **11 failed** before routes existed.
-- UI controls contract: **1 failed** before the interface was built.
-- Independent history question and candidate rejection explanations: **2 failed** before fixes.
-- Study type, strict completeness flags and boolean numeric coercion: **6 failed** before fixes.
-- Unknown schema gate: **1 failed** before fix; added restart/hash coverage already passed and is not
-  claimed to have discovered a previously failing behavior.
-- Explicit multi-source SOP reconciliation: **1 failed** before relation/approval implementation.
-- Nonstring attachment approval text: **4 failed** before type-guard fix.
-- Additional complete four-question HTTP resolution test passed after correcting its missing test import;
-  it verifies existing behavior and is not claimed as a test-first feature discovery.
+## Clean-source local quickstart and confidentiality checks
 
-The working log records coarse initial scaffolding and later focused regressions honestly. No raw test
-failure logs containing ephemeral credential diagnostics are committed publicly.
+A fresh tracked-tree archive (no `.git`, runtime or original inputs) was extracted outside the project.
+Using Python 3.12, `python -m venv .venv` and
+`python -m pip install --require-hashes -r requirements.txt` succeeded. Package import was verified to
+come from that extraction, not the working repository. With runtime dependencies only, the actual
+`python -m workbench demo` server and documented four-task client passed through real loopback HTTP.
+Then a separate new environment ran `uv sync --locked`, **144 tests** and restart smoke successfully.
+The reduced lockfile was tested again from a new archive after removing unused legacy `httpx`;
+framework-selected `httpx2` remains. This is executable evidence for both quickstarts, not a clone-only claim.
 
-## Independent review corrections and observed regression evidence
+All reachable Git blobs and candidate tracked bytes, commit author metadata and extracted public PDF
+text were scanned for known private-source identifiers, exact generated demo keys, key patterns and
+forbidden source/runtime files: **zero findings**. UI code/assets are unchanged from the previously
+reviewed captures. This is a bounded scan, not a penetration test or proof no undiscovered secret exists.
+Original attachments, source citations, runtime keys, raw logs and the detailed alignment report remain
+outside the public tree. Independent review is still required before publishing these changes.
 
-The initial review reproduced a real transient old-tenant UI rendering bug, hidden proposed supersession
-metadata and a cross-tenant case-ID collision oracle. These were defects, not merely documentation gaps.
+## Current failing-first evidence
 
-- **Session/selection isolation:** nine runnable Node assertions failed before the fix. The first harness
-  could await an unfixed continuation indefinitely; it was bounded before the accepted RED run. Captured
-  credentials, session/selection/refresh-lane generations and cancellation now gate requests **and every
-  continuation after response/body awaits**. Stale errors/finally blocks and detached action closures are
-  silent; logout clears scalar labels and forms as well as lists. Later additional guards passed immediately
-  and are verification coverage, not claimed as additional pre-fix RED results.
-- **Proposed supersession:** one API and one UI assertion failed before metadata/display fixes. QA can now
-  inspect predecessor IDs, exact scope and effective dates before approval; targets remain active until approval.
-- **Tenant case keys:** three focused assertions failed before schema v2; an additional unversioned-database
-  assertion also failed before refusal was implemented. Same public IDs coexist safely in two tenants;
-  missing/inaccessible reads are identical. Composite case foreign keys are checked. v1/unknown/unversioned
-  databases are rejected without changing their bytes; **no offline migration is implemented**.
-- **Existing guard verification:** 25 additional expiry-boundary, approval-only invalidation and endpoint
-  role/read regressions passed immediately. These confirm existing protections; no production fix is claimed.
-- **Favicon:** one assertion failed before the empty no-store 204 route, removing the harmless browser 404.
+- **23 failures / 1 pre-existing pass** before focused contract fixes: seven ambiguous/nonfinite source
+  JSON cases, four non-string Credential failures, twelve coercible JSON authority-reference cases.
+  The exact-byte-preservation check already passed and is not a new bug discovery. Initial source tests
+  used an incorrect expected 400; corrected to the existing documented 409 **before** the accepted RED rerun.
+- A source below the byte limit with extreme nesting produced an actual **RecursionError on Python 3.12**;
+  Python 3.14 accepted it. Added a consistent 64-container resource limit and converted parser recursion to
+  controlled conflict. The first smaller nesting probe was accepted; no 3.14 exception is claimed.
+  Final nesting RED on 3.12: **1 failed / 7 passed**; final contract suite **27 passed**. Depth-boundary checks
+  were added afterward as verification, not retrospectively called failing discoveries.
+- Reference tests: **3 failed / 2 passed** before the consolidated entrypoint and executable tutorial existed.
+  The real-socket tutorial command also failed before the module existed. Final reference suite **5 passed**;
+  socket smoke now executes all four completions and verifies repeat refusal and unchanged notice state.
 
-All raw RED/GREEN diagnostics remain outside Git, including ephemeral disposable test credentials.
-The Node regressions are included in CI; the completed remote matrix run is recorded below. The initial build was
-visually exercised by an independent browser worker (evaluation/replay/tasks/acknowledgement/queue passed,
-transient tenant leak observed); **the subsequent v2 browser retest FAILED with persistent detail under an empty reader tenant**.
-That failure remains recorded; the later independent visual retest of `5de05e4` passed as described below. Fresh repaired runtime
-HTTP checks passed: three authorized cases, empty other tenant, review metadata, seeded replay, no-store
-assets, authentication denial and favicon 204. A separate real-process smoke tested restart/persistence.
+No new clinical rule, source approval, legal reporting date or human identity was invented by these fixes.
+Exact source bytes stay unchanged. Schema remains v2 and evaluator remains v1: admission is stricter,
+not a schema migration or changed arithmetic. Existing ambiguous sources can be refused on current reads;
+old captured-bundle replay remains a separate path. See the [LLD](lld.md#integrity-and-replay).
 
-## Real-markup follow-up after failed v2 browser retest
+## Preserved independent-review history
 
-The v2 browser screenshot showed an empty Reader tenant with an old case label/product/route and enabled
-assembly button. We do **not** count the earlier Node mock tests as proof this browser defect was fixed.
+The initial implementation had a real transient stale-tenant UI response, hidden proposed supersession
+metadata and a global case-ID collision oracle. Focused tests failed before those fixes. Schema v2 now
+uses tenant/case keys and refuses v1/unknown/unversioned data without silent migration. Expiry, approval-only
+invalidation and endpoint-role tests that already passed were correctly recorded as verification, not discoveries.
 
-Investigation used the real HTML/CSS and application script in jsdom (Node-only, no browser automation).
-IDs were unique and the existing `[hidden] { display:none !important }` rule worked in CSSOM; no stylesheet
-collision was demonstrated. The server returned the expected script bytes and `Cache-Control: no-store`.
-A fresh exact-snapshot DOM login/lock/reader/refresh probe reproduced the screenshot's persistent text and
-enabled button with the **initial** script, but not with fresh v2 script execution. Which script the failed
-browser tab was executing was not observable retrospectively; **no cache cause is asserted**.
+A later **v2 real-browser retest failed** with persistent old detail in an empty tenant. Actual-markup
+investigation found a genuine empty-list recovery gap. Real-DOM tests failed before synchronous erasure,
+selection invalidation, disclosure/form reset and an executing-script build marker were added. No CSS
+collision or cache cause was proved. Node tests alone were not treated as visual acceptance.
 
-A genuine recovery defect was independently reproduced: `loadCases()` updated the empty list/count but did
-not invalidate an absent selection or erase residual detail. Four real-DOM assertions failed before the
-fix (including residual text in both selected/unselected empty-list states, retained disclosure state and
-missing build identity); one additional form-choice reset assertion failed before its fix. An initial
-strict-eval harness scope error was corrected and is not counted as RED. A separate HTTP build contract
-also failed before versioned assets/marker existed. Full fresh login and late-response real-DOM workflows
-were subsequently added as verification coverage, not falsely claimed as extra discoveries.
+**Independent browser retest PASSED on `5de05e4087205cd0bcf7f195d0ae60d8f7162e57`, visible UI dom-reset-v3:**
+assembly/replay; QA acknowledgement with a pending notice; lock → empty Reader tenant → zero cases and
+obligations with empty detail even after Refresh; restore QA → four tasks. The two README screenshots
+were manually inspected for secrets and re-encoded without PNG metadata. This follow-up changes no
+frontend assets; **no new browser retest is claimed**. Full chronological detail and initial scaffold/TDD
+limitations remain in the [honest AI log](ai-working-log.md), rather than duplicated here.
 
-The new implementation clears all case text, containers, labels/titles and fields **before** hiding;
-closes disclosures and resets unsubmitted choices; gives detail/empty states separate IDs; invalidates
-removed selections and pending selection requests; and enables detail only after an authorized response.
-Empty-list refresh now erases residual data even if CSS visibility is forced. The visible executing-script
-marker is **UI dom-reset-v3**, with matching versioned asset URLs; UI/assets remain no-store. Server restart
-and in-app refresh do not update already executing scripts: navigate/reload and verify the marker.
+## Capability status and exclusions
 
-Eight actual-markup DOM/CSS tests and fifteen transport race tests pass. jsdom has no layout/rendering
-engine, so those results did not replace independent visual review.
-
-**Independent browser retest subsequently PASSED on `5de05e4087205cd0bcf7f195d0ae60d8f7162e57`, with
-visible `UI dom-reset-v3`:** assembly and captured replay; local QA acknowledgement with the notice still
-pending; locking QA then opening the Reader tenant showed zero cases, zero obligations and empty detail
-even after workspace refresh; returning to QA showed four unresolved tasks. Independent final review
-reported no code/security/confidentiality blockers for that SHA, not production or clinical qualification.
-Two actual screenshots were manually inspected for secrets: only invented case/product/tenant data and
-public bundle hashes were visible. Re-encoding removed PNG metadata before adding them to the repository.
-The earlier browser tab's executing asset identity remains unknown; **no cache cause has been proved**.
-
-## Representative invariants and named tests
-
-| Invariant | Tests |
+| Capability | Status |
 |---|---|
-| Review acknowledgement cannot close outstanding obligations | `test_notice_survives_acknowledgement_and_restart`, `test_http_working_path_review_and_notice_independence` |
-| Assembly corruption does not hide deadline ordering | `test_assembly_error_does_not_hide_deadline_and_order` |
-| Process restart preserves queue | `test_obligation_survives_separate_interpreter` + real-socket smoke |
-| N/blank/unknown imported flags stay UNKNOWN | `test_raw_flags_never_qualified_not_required` |
-| Qualified exemption needs Regulatory role and basis | `test_qualified_not_required_needs_regulatory_role_and_nonblank_basis` |
-| Missing/revoked/expired/other-tenant credentials fail closed | `test_missing_invalid_revoked_credential_fails`, `test_expiry_boundary_rechecked_for_retained_credentials`, tenant HTTP/store tests |
-| Invalid/NaN/infinite/reversed/bool readings never safety evidence | `test_invalid_measurements_never_safety_evidence`, `test_http_boolean_measurement_must_not_coerce_to_one_degree` |
-| Strict/inclusive limits survive JSON roundtrip | `test_strict_inclusive_upper_bound_survives_roundtrip`, lower/one-sided tests |
-| Different presentation / accelerated study / overlapping SOPs are not permission | Scope, study-type, overlap and candidate-rejection tests |
-| Unknown history != zero; missing exposure authority doesn't hide history task | `test_unknown_history_is_not_zero`, `test_history_question_not_hidden_by_missing_exposure_authority` |
-| Empty/unapproved sources cannot complete tasks | `test_unapproved_and_blank_attachments_do_not_complete_tasks`, nonstring approval tests |
-| Explicit approved SOP reconciliation, not automatic latest-wins | `test_explicit_approved_reconciliation_can_resolve_two_sop_revisions` |
-| Four synthetic tasks can actually resolve | `test_four_question_demo_resolves_end_to_end_with_synthetic_bytes` |
-| Approval alone invalidates a captured revision | `test_approval_alone_invalidates_an_otherwise_current_bundle` |
-| Case ID cannot reserve/probe another tenant's namespace | `test_case_identifiers_are_tenant_scoped_without_collision_oracle`, schema v2 key tests |
-| Bundle/source tamper and blank labels rejected | Stored-hash/source-hash/blank/stale tests |
-| Concurrent reviews and request-key retries cannot duplicate acknowledgement | `test_two_reviewers_racing_only_one_acknowledges`, idempotency tests |
-| Later outcome never leaks into prior evaluation | `test_later_outcomes_cannot_change_evaluation`, `test_replay_original_inputs_not_later_outcome` |
-| New evidence creates linked result, original remains | `test_approved_resolution_creates_linked_version_not_overwrite`, stale revision tests |
-| Backup can restore real queue and replay | `test_backup_restore_integrity_and_obligations` |
+| Tenant/role enforcement, source hashes/scope/effectivity/approval gates | Implemented and locally negative-tested; teaching approvals only |
+| Explicit bounds, uncertainty, unknown history and role evidence tasks | Implemented with invented structured policies; no real clinical policy |
+| Immutable linked snapshots, expected-hash review, retries/races, replay | Implemented/tested; integrity and reproducibility are not source truth |
+| Independent UNKNOWN/deadline queue, error/restart persistence | Implemented/tested; no reporting calendar, sender or verified receipt |
+| Local UI and session erasure | Node regressions executed; earlier independent dom-reset-v3 visual pass only |
+| Backup/restore | Implemented/tested locally; not validated long-term retention or HA |
+| Professional signing, MFA/dual signers, multilingual regulated output | Deferred; local acknowledgement is not legal signing |
+| Real connectors, batch ledger/raw-series completeness, clinical historical comparison | Deferred; no original case outcome comparison executed |
+| PostgreSQL/RLS, regional residency, WORM, outbox, fair scheduling, monitoring | Designed/deferred; no multi-host or scale qualification |
+| Latest local changes / remote CI | Unpushed; independent review required. Old CI is not evidence for this revision |
 
-## Bounded probe, not a scalability claim
+No full static type checker, Docker build, production penetration test, representative burst/load/fault
+campaign or clinical validation was performed. No test suite covers all possible cases. Historical labels
+are not an oracle; three fictional paths cannot establish alert-closure or clinical agreement rates.
 
-Before the review fixes, a separate real-loopback queue-read probe used **200 requests / 8 client threads / three synthetic
-cases**. Observed: zero request failures, 0.703 seconds wall time, 9.568 ms median, 107.708 ms p95.
-No write traffic, large source sets, source-adapter outages, production hardware, regional network,
-long-run memory pressure or real burst mix was represented. Do not extrapolate these numbers to
-production capacity, multi-tenancy fairness or notification compliance.
+**Historical bounded probe only:** before earlier review fixes, 200 loopback queue reads / 8 threads /
+three invented cases had zero failures, 0.703 s wall time, 9.568 ms median and 107.708 ms p95. It omitted
+write contention, large sources, network outages and real workloads. It is not a current capacity result.
 
-## Capability status
+## Previously observed publication and CI
 
-| Capability | Honest status |
-|---|---|
-| Public teaching fixtures, source wording in fixtures | Invented and clearly labelled SYNTHETIC; not verified original-case authority |
-| Local server-side authentication / tenant / roles | Implemented; API/store negative tests executed |
-| Candidate discovery and specific rejection reasons | Implemented; synthetic tests executed |
-| Source bytes, approval, exact scope and effective-time gates | Implemented; local synthetic approval only; real approvals require clarification |
-| Five-source evidence chain and role resolution tasks | Implemented; full synthetic resolution executed |
-| Independent durable deadlines and UNKNOWN reportability | Implemented; error/restart/role tests executed |
-| Clinical policy evaluation and professional disposition | Deferred; no such original-case qualified capability claimed |
-| Real signing / MFA / dual professional signers | Deferred; local acknowledgement explicitly not legal signing |
-| Verified regulator delivery and receipts | Deferred; SENT is a role's assertion, not actual transmission |
-| Captured hash-checked inputs and linked replay | Implemented/tested; proves reproducibility, not evidence truth |
-| Frontend controls and API wiring | Implemented; 23 Node race/actual-DOM regressions/API/syntax checked; independent dom-reset-v3 browser retest passed on `5de05e4` |
-| Metrics, fair scheduling, regional PostgreSQL/RLS/WORM | Designed; not implemented/executed |
-| GitHub Actions | Completed run on `2ac0063` observed successful across Python 3.12/3.13/3.14; exact SHA/link below |
-| Internet hardening / production or clinical qualification | Not performed |
-
-Historical clinical comparison has not been executed against a real corpus. The three fixture paths
-are not a closure-rate denominator, clinical performance result or production outcome agreement study.
-No full static type checker, Docker build or browser automation suite was run. Docker is not required
-and no Dockerfile is offered as evidence of scale. Private original requirements/QA questions and exact
-source citations remain in a separate owner-only register.
-
-## Public-tree hygiene
-
-The original staged file set and, after review fixes, all reachable Git blobs plus tracked worktree were checked for known private-source identifiers, credential/private-key
-patterns, exact generated runtime keys, forbidden workbook/archive/database files and broken local
-Markdown links. No matches were found. This is a bounded scan, not a substitute for independent
-publication/security review. The plain-venv hash-pinned install and synthetic CLI seeding were also
-executed successfully (exit 0); no runtime database or generated key file is tracked.
-
-## Observed GitHub Actions result — exact published revision
-
-- Repository: https://github.com/Zulfiqar7862/coldchain-evidence-workbench — public source only, not a deployed service.
-- Tested SHA: `2ac00639e1e409a3423560797ed5317ab47b4eec`.
-- Run: https://github.com/Zulfiqar7862/coldchain-evidence-workbench/actions/runs/42371195914
-- Observed conclusion: **success**, all three jobs `verify (3.12)`, `verify (3.13)`, `verify (3.14)` completed successfully.
-- Actual logs were read: **112 pytest tests passed per interpreter; 23 Node tests passed per job**;
-  Ruff checks/format, real-socket restart smoke, npm audit and runtime pip audit all succeeded.
-- This records the preceding tested SHA deliberately. The follow-up documentation commit records this
-  observation; its own CI is checked separately rather than creating an infinite documentation/CI loop.
-
-The implementation did not manually open or merge a PR, write an old repository, deploy production or
-expose the demo server publicly. It pushed only `build/evidence-workbench`, the new default branch.
-The committed monthly Dependabot configuration caused GitHub to automatically open four dependency-update
-PRs (#1–#4) after publication. Those service-created PRs were not merged, closed or otherwise modified by
-the implementation; their branches are separate from the reviewed default branch.
+Public source: https://github.com/Zulfiqar7862/coldchain-evidence-workbench (not a deployed service).
+Previously published revision: `7aa3ceda8212beb093c957ec78135a3c518faa3e`; default branch
+`build/evidence-workbench`. Previously read successful run:
+https://github.com/Zulfiqar7862/coldchain-evidence-workbench/actions/runs/42371365226
+— 112 pytest + 23 Node tests per Python 3.12/3.13/3.14 job, lint/smoke/audits successful. This is historical
+evidence only. No new push, PR, merge, deployment or production/old-repository change occurred in this follow-up.
+Monthly Dependabot automatically opened four PRs after the original publication; none was manually
+created, merged, closed or changed by this work.

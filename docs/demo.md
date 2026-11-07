@@ -32,65 +32,22 @@ An outside-policy result is still arithmetic, not a destroy decision.
 - Unapproved exposure wording; no inferred individual/cumulative combination.
 - Missing complete batch history, not a zero history.
 
-The following **local Python client** calls the running API, uploads invented attachments, requests
-simulated QA approval, then completes each task only after re-evaluation. It handles SOP reconciliation
-by an explicit approved replacement naming **both** old candidates, not by selecting the newest row.
-Run it only in a disposable demo runtime: it changes that synthetic case's evidence history.
+The maintained [local tutorial client](../scripts/resolve_questions.py) uploads invented attachments,
+requests simulated QA approval and completes tasks only after re-evaluation. It explicitly reconciles
+**both** SOP candidates; newest-row selection is not authority. With the server running, execute:
 
-```python
-# Run from repository root with: uv run --locked python
-import json
-from pathlib import Path
-from urllib.request import Request, urlopen
-from workbench.demo import example_document
-
-keys = json.loads(Path(".runtime/credentials.json").read_text())
-base = "http://127.0.0.1:8174/api"
-
-
-def call(path, method="GET", data=None, role="harbor-qa"):
-    request = Request(
-        base + path,
-        method=method,
-        headers={"Authorization": "Bearer " + keys[role], "Content-Type": "application/json"},
-        data=json.dumps(data).encode() if data is not None else None,
-    )
-    with urlopen(request) as response:
-        return json.load(response)
-
-
-path = "/cases/DEMO-QUESTIONS"
-original = call(path + "/evaluations")[0]
-payload = call(path)["input"]
-for kind, reason in [
-    ("study", "STUDY_APPLICABILITY"),
-    ("sop", "SOP_AUTHORITY"),
-    ("exposure", "EXPOSURE_RELATIONSHIP"),
-    ("history", "BATCH_HISTORY"),
-]:
-    document = example_document(payload, kind, row=100)
-    if kind == "sop":
-        document["supersedes"] = [
-            d["id"] for d in call(path + "/documents") if d["kind"] == "sop" and d["approved"]
-        ]
-    attached = call(path + "/documents", "POST", document, "harbor-operator")
-    call(path + f"/documents/{attached['id']}/approval", "POST")
-    completed = call(
-        path + "/resolutions",
-        "POST",
-        {"bundle_id": original["id"], "reason_code": reason, "document_id": attached["id"]},
-    )
-    print(reason, completed["status"], "new bundle", completed["resolved_bundle"])
-
-print("Original task count:", len(call(f"/bundles/{original['id']}")["result"]["tasks"]))
-print("Current result:", call(path + "/evaluations")[-1]["result"]["recommendation"])
-print("Pending obligations:", len(call("/obligations")))
+```bash
+uv run --locked python -m scripts.resolve_questions
+# Custom disposable demo: add --runtime PATH --port PORT (loopback only)
 ```
 
-Expected on a **fresh** demo: four COMPLETE resolution events; original bundle still has four tasks;
-current synthetic support is WITHIN_SYNTHETIC_POLICY; three pending obligations remain. Re-running with
-already resolved original task keys conflicts by design. This exact workflow is exercised in
-`test_four_question_demo_resolves_end_to_end_with_synthetic_bytes`.
+Run only against a fresh disposable synthetic questions case. Expected JSON: `completed: 4`,
+`original_tasks: 4`, `current_result: "WITHIN_SYNTHETIC_POLICY"`, `pending_obligations: 3`.
+The old bundle still has four tasks; four separate completion events link to new evaluations.
+This script is a tutorial, not an idempotent bulk/retry tool. An already partly/completely resolved
+questions case is refused before new writes. For uncertain network outcomes reconcile API histories.
+The [real-process smoke](../scripts/smoke.py) executes this exact command and verifies persistence.
+An independent HTTP test remains: `test_four_question_demo_resolves_end_to_end_with_synthetic_bytes`.
 
 The UI also supports manual attach/approval and linking an approved attachment ID to a task. Copy a
 source with “Use as synthetic template” and edit the structured document carefully. `supersedes` may

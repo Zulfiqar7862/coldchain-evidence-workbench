@@ -14,6 +14,9 @@ independent of review.
 
 *Original conceptual animation, not a recording of the application. Static [PNG](docs/assets/two-tracks.png).*
 
+**New to the company or reviewing the implementation? Start with the [company reference](docs/company-reference.md):**
+roles → six-step flow → requirements evidence → HLD/LLD → SOLID → interview explanation.
+
 ## Run it in three steps
 
 Requires Python **3.12–3.14** and [uv](https://docs.astral.sh/uv/getting-started/installation/).
@@ -130,7 +133,7 @@ npm test
 npm audit --audit-level=low
 ```
 
-The smoke command starts a real loopback HTTP server, exercises auth/evaluation/acknowledgement,
+The smoke command starts a real loopback HTTP server, exercises auth/evaluation/acknowledgement and the documented four-task resolution command,
 terminates it, starts a new process, and verifies persisted obligations and replay. No generated keys are printed.
 See [observed verification results](docs/acceptance.md); configured CI is **not** the same as observed CI.
 
@@ -153,7 +156,7 @@ Nothing in the demo proves a production closure rate, regulatory compliance or s
 3. [LLD](docs/lld.md) — data, interfaces, ordering, state and recovery
 4. [Threat model](docs/threat-model.md) · [Runbook](docs/runbook.md)
 5. [Verification / limitations](docs/acceptance.md) · [Honest AI working log](docs/ai-working-log.md)
-6. [Interview walkthrough](docs/walkthrough.md) · [cost and rollout design](docs/cost-rollout.md)
+6. [Company reference and interview story](docs/company-reference.md) · [cost and rollout design](docs/cost-rollout.md)
 
 This public tree contains no private assignment documents or customer extracts. Source-to-requirement
 mapping and original-business targets are retained separately for the owner, not licensed for redistribution.
