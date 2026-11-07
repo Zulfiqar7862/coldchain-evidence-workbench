@@ -93,7 +93,8 @@ All `/api` endpoints require Bearer authentication; tenant is derived server-sid
 
 401 invalid/missing/expired key; 403 inaccessible object/role; 422 invalid typed body;
 409 domain/integrity/state/duplicate conflict; 413 oversized body; 503 storage operational error.
-Unknown fields in write models are rejected. Extra query strings such as `tenant=...` cannot change membership.
+JSON body reference IDs must be positive integers: strings, floats and booleans are rejected rather
+than coerced. URL path integers are parsed separately. Unknown fields in write models are rejected. Extra query strings such as `tenant=...` cannot change membership.
 `GET /healthz` is liveness only; it does not prove database readiness.
 
 ## Transactions, retries and concurrency
@@ -123,6 +124,13 @@ then evaluates current evidence in the same transaction. It appends completion o
 Failure rolls back the new bundle and resolution together. Historical task status is never rewritten.
 
 ## Integrity and replay
+
+Source attachments are synthetic JSON objects: duplicate keys (including nested/escaped spellings),
+nonfinite numbers/overflow and more than 64 container levels are rejected. Excessive parser recursion
+becomes a controlled conflict, not a server exception. This is a resource/interpretation limit, not a
+clinical rule. The same parser is used at intake, approval and current source reads. Previously stored
+ambiguous sources may therefore be refused; captured old-bundle replay remains separate. No bytes are
+normalized or silently repaired.
 
 Source hash is SHA-256 over exact stored content text encoded as UTF-8. The bundle hash covers canonical
 JSON of tenant, case, parent, serialized snapshot/result, revision and created timestamp. Canonical JSON

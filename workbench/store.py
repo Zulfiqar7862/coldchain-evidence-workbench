@@ -6,6 +6,7 @@ Application append-only triggers do NOT protect against a database administrator
 
 import hashlib
 import json
+import math
 import secrets
 import sqlite3
 from contextlib import contextmanager
@@ -18,6 +19,48 @@ from workbench.domain import VERSION, evaluate
 
 def canonical(value):
     return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
+
+
+def source_document(content):
+    """One unambiguous JSON interpretation; never rewrite the hashed source bytes."""
+
+    def unique_object(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("source JSON contains duplicate keys")
+            result[key] = value
+        return result
+
+    def finite_float(value):
+        number = float(value)
+        if not math.isfinite(number):
+            raise ValueError("source JSON requires finite numbers")
+        return number
+
+    def invalid_constant(value):
+        raise ValueError("source JSON requires finite numbers")
+
+    try:
+        data = json.loads(
+            content,
+            object_pairs_hook=unique_object,
+            parse_float=finite_float,
+            parse_constant=invalid_constant,
+        )
+    except RecursionError:
+        raise ValueError("source JSON nesting exceeds parser limit") from None
+    pending = [(data, 1)]
+    while pending:
+        value, depth = pending.pop()
+        if isinstance(value, (dict, list)):
+            if depth > 64:
+                raise ValueError("source JSON exceeds 64 container levels")
+            children = value.values() if isinstance(value, dict) else value
+            pending.extend((child, depth + 1) for child in children)
+    if not isinstance(data, dict) or data.get("synthetic") is not True:
+        raise ValueError("synthetic document object required")
+    return data
 
 
 def digest(value):
@@ -143,7 +186,11 @@ class Store:
         return token
 
     def _actor(self, db, credential, roles=None):
-        if not isinstance(credential, Credential) or not credential.token:
+        if (
+            not isinstance(credential, Credential)
+            or not isinstance(credential.token, str)
+            or not credential.token
+        ):
             raise PermissionError("authentication required")
         row = db.execute(
             "SELECT * FROM actors WHERE token_hash=? AND active=1 AND expires>?",
@@ -237,9 +284,7 @@ class Store:
         content = document["content"]
         if not content.strip() or len(content.encode()) > 65536:
             raise ValueError("attached bytes must be nonblank and <=64 KiB")
-        data = json.loads(content)
-        if not isinstance(data, dict) or data.get("synthetic") is not True:
-            raise ValueError("synthetic document object required")
+        source_document(content)
         meta = {k: document[k] for k in required - {"content", "supersedes"}}
         meta["effective_from"] = timestamp(meta["effective_from"])
         meta["effective_to"] = timestamp(meta["effective_to"])
@@ -288,7 +333,7 @@ class Store:
             ).fetchone()
             if not row or digest(row["content"]) != row["hash"]:
                 raise ValueError("source integrity failure")
-            text = json.loads(row["content"]).get("text")
+            text = source_document(row["content"]).get("text")
             if not isinstance(text, str) or not text.strip():
                 raise ValueError("approval requires substantive attached text")
             db.execute("INSERT INTO approvals VALUES(?,?,?)", (doc_id, a["id"], now()))
@@ -316,7 +361,7 @@ class Store:
         for r in rows:
             if digest(r["content"]) != r["hash"]:
                 raise ValueError("source integrity failure")
-            data = json.loads(r["content"])
+            data = source_document(r["content"])
             documents.append(
                 json.loads(r["metadata"])
                 | {

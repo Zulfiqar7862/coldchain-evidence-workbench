@@ -18,6 +18,7 @@ from workbench.store import Store
 Text = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=500)]
 Identifier = Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9_-]{1,80}$")]
 Hash = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
+PositiveId = Annotated[int, Field(strict=True, gt=0)]
 
 
 class Scope(StrictModel):
@@ -58,11 +59,11 @@ class DocumentInput(StrictModel):
     effective_to: AwareDatetime
     citation: Text
     content: Annotated[str, StringConstraints(min_length=1, max_length=65536)]
-    supersedes: Annotated[int, Field(gt=0)] | list[Annotated[int, Field(gt=0)]] | None = None
+    supersedes: PositiveId | list[PositiveId] | None = None
 
 
 class AcknowledgementInput(StrictModel):
-    bundle_id: int = Field(gt=0)
+    bundle_id: PositiveId
     expected_hash: Hash
     signer_label: Text
     outcome: Literal["REVIEW_ACCEPTED", "REVIEW_REJECTED"]
@@ -70,9 +71,9 @@ class AcknowledgementInput(StrictModel):
 
 
 class ResolutionInput(StrictModel):
-    bundle_id: int = Field(gt=0)
+    bundle_id: PositiveId
     reason_code: Text
-    document_id: int = Field(gt=0)
+    document_id: PositiveId
 
 
 class ObligationInput(StrictModel):
