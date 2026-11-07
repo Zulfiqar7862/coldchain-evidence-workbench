@@ -21,7 +21,9 @@ No Docker, Node build, database server, account or paid API is needed. Node **24
 The UI has no Node build step.
 
 ```bash
-# 1. Inside this repository
+# 1. Get the public source and install locked dependencies
+git clone --branch build/evidence-workbench https://github.com/Zulfiqar7862/coldchain-evidence-workbench.git
+cd coldchain-evidence-workbench
 uv sync --locked
 
 # 2. Start the synthetic demo (loopback only)

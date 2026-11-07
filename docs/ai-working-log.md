@@ -135,3 +135,10 @@ labels and public bundle hashes were visible, with no credential fields or keys.
 PNG metadata and added them as actual UI captures alongside the separately labelled conceptual GIF.
 Publication of this new original public repository was explicitly authorized; old repositories and their
 branches remain untouched. Remote CI results will be recorded only after an actual run is read.
+
+The new public repository was created and only `build/evidence-workbench` was pushed/set as default.
+Read completed GitHub Actions run `42371195914` for exact SHA
+`2ac00639e1e409a3423560797ed5317ab47b4eec`: success on Python 3.12/3.13/3.14, with 112 pytest tests and
+23 Node tests per job, successful lint/smoke/audits. This follow-up documentation records that preceding
+run; the final documentation SHA's run is verified separately, without another recursive docs commit.
+No claim of clinical qualification or proven cache cause follows from these successful checks.

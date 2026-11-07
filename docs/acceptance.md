@@ -1,8 +1,8 @@
 # Verification ledger and honest boundaries
 
 Observed locally on **7 November 2026 (Europe/Berlin)**. These are execution results, not production
-qualification. No GitHub Actions run has been observed: the repository has not been published in this
-implementation phase. No CI badge is used as a substitute for a run actually read.
+qualification. The new source repository is public; an actual completed GitHub Actions run was read,
+with its exact SHA and results below. No CI badge substitutes for reading a run.
 
 ## Commands actually executed
 
@@ -78,7 +78,7 @@ metadata and a cross-tenant case-ID collision oracle. These were defects, not me
 - **Favicon:** one assertion failed before the empty no-store 204 route, removing the harmless browser 404.
 
 All raw RED/GREEN diagnostics remain outside Git, including ephemeral disposable test credentials.
-The Node regressions are included in CI. CI itself remains unobserved remotely. The initial build was
+The Node regressions are included in CI; the completed remote matrix run is recorded below. The initial build was
 visually exercised by an independent browser worker (evaluation/replay/tasks/acknowledgement/queue passed,
 transient tenant leak observed); **the subsequent v2 browser retest FAILED with persistent detail under an empty reader tenant**.
 That failure remains recorded; the later independent visual retest of `5de05e4` passed as described below. Fresh repaired runtime
@@ -173,7 +173,7 @@ production capacity, multi-tenancy fairness or notification compliance.
 | Captured hash-checked inputs and linked replay | Implemented/tested; proves reproducibility, not evidence truth |
 | Frontend controls and API wiring | Implemented; 23 Node race/actual-DOM regressions/API/syntax checked; independent dom-reset-v3 browser retest passed on `5de05e4` |
 | Metrics, fair scheduling, regional PostgreSQL/RLS/WORM | Designed; not implemented/executed |
-| CI YAML | Configured with pinned actions/read-only permissions; **not yet observed** on GitHub |
+| GitHub Actions | Completed run on `2ac0063` observed successful across Python 3.12/3.13/3.14; exact SHA/link below |
 | Internet hardening / production or clinical qualification | Not performed |
 
 Historical clinical comparison has not been executed against a real corpus. The three fixture paths
@@ -189,3 +189,17 @@ patterns, exact generated runtime keys, forbidden workbook/archive/database file
 Markdown links. No matches were found. This is a bounded scan, not a substitute for independent
 publication/security review. The plain-venv hash-pinned install and synthetic CLI seeding were also
 executed successfully (exit 0); no runtime database or generated key file is tracked.
+
+## Observed GitHub Actions result — exact published revision
+
+- Repository: https://github.com/Zulfiqar7862/coldchain-evidence-workbench — public source only, not a deployed service.
+- Tested SHA: `2ac00639e1e409a3423560797ed5317ab47b4eec`.
+- Run: https://github.com/Zulfiqar7862/coldchain-evidence-workbench/actions/runs/42371195914
+- Observed conclusion: **success**, all three jobs `verify (3.12)`, `verify (3.13)`, `verify (3.14)` completed successfully.
+- Actual logs were read: **112 pytest tests passed per interpreter; 23 Node tests passed per job**;
+  Ruff checks/format, real-socket restart smoke, npm audit and runtime pip audit all succeeded.
+- This records the preceding tested SHA deliberately. The follow-up documentation commit records this
+  observation; its own CI is checked separately rather than creating an infinite documentation/CI loop.
+
+No PR, merge, old-repository write, production deployment or public demo-server exposure was performed.
+The only pushed branch is `build/evidence-workbench`, also the new repository's default branch.
