@@ -73,3 +73,28 @@ Resource warnings from unclosed test-only database fixtures were observed and fi
 connections explicitly; a warnings-as-errors full run then passed. Nonstring approval text had four
 failing adversarial regressions before a type guard was added. No browser visual review or remote CI
 run is inferred from these results.
+
+## Independent-review follow-up (same date, Europe/Berlin)
+
+Loaded receiving-code-review, systematic-debugging and TDD guidance. Ran both independent reproductions
+against the initial build; the API repro first needed the repository on `PYTHONPATH` (that import error is
+not a domain RED). Verified the stale-session render, hidden proposed predecessor relation and globally
+unique case-ID collision. Added concrete failing assertions before focused fixes, preserving raw logs
+privately. The first delayed-selection test harness could hang on the unfixed chain; bounded it and
+observed nine assertion failures, then added cancellation plus session/selection/refresh generations to
+all async UI paths, immutable request credentials, stale-error suppression and full logout clearing.
+
+Exposed replacement IDs/scope/effectivity in document review and approval confirmation. Replaced global
+case uniqueness with tenant-scoped composite keys and versioned schema v2; deliberately refused v1 and
+unversioned existing databases rather than building an unreviewed migration. Added credential-expiry,
+approval-only revision and all-write-role denial tests; those 25 checks already passed and are not claimed
+as bug discoveries. Fixed the harmless favicon 404 with a test-first 204 handler. No test result was
+fabricated to make the original implementation look complete.
+
+Reran the full 111-test suite with independent coverage files on Python 3.12/3.13/3.14, fifteen deterministic
+Node race/metadata tests, lint/format/compile checks, real-socket restart smoke and dependency audits. The
+coverage denominators differ by interpreter and are recorded separately in acceptance.md. The runtime
+audit reported cache-deserialization warnings but no known vulnerabilities; installed-dependency audit
+was clean. After the browser worker finished, preserved its v1 runtime, stopped that process and started
+a fresh v2 runtime on the same loopback port. Read-only live HTTP checks passed. Repaired visual UI review
+and independent publication/security approval remain pending; no remote was created or pushed.

@@ -17,7 +17,8 @@ independent of review.
 ## Run it in three steps
 
 Requires Python **3.12–3.14** and [uv](https://docs.astral.sh/uv/getting-started/installation/).
-No Docker, Node build, database server, account or paid API is needed.
+No Docker, Node build, database server, account or paid API is needed. Node 20+ is used only for
+the dependency-free JavaScript race tests (`node --test tests/ui-races.cjs`), not to run the app.
 
 ```bash
 # 1. Inside this repository
@@ -56,6 +57,9 @@ The exported requirements contain pinned runtime dependencies and hashes. `uv.lo
 
 For source attachment → approval → task completion, see the executable examples in
 [the demo guide](docs/demo.md). Attachments begin **unapproved**. Blank transcriptions and cleared flags cannot complete a task.
+
+**Existing local demo?** This build uses schema v2. A v1 runtime is preserved and refused, not silently
+migrated. Start a fresh synthetic runtime with `demo --runtime .runtime-v2`; see the [runbook](docs/runbook.md).
 
 ## Why this slice?
 
