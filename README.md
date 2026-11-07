@@ -60,6 +60,17 @@ The exported requirements contain pinned runtime dependencies and hashes. `uv.lo
 For source attachment → approval → task completion, see the executable examples in
 [the demo guide](docs/demo.md). Attachments begin **unapproved**. Blank transcriptions and cleared flags cannot complete a task.
 
+### Actual local UI — invented fixtures only
+
+![Four evidence questions with role-owned tasks and a separate notification queue](docs/assets/ui-questions.png)
+
+*Real browser capture of `UI dom-reset-v3`: four unresolved evidence tasks; notification clocks remain separate.*
+
+![A different tenant has zero cases, zero obligations and no case details](docs/assets/ui-empty-tenant.png)
+
+*After locking QA and opening the empty Reader tenant, even after refresh: no prior case details.
+These are screenshots of synthetic software behavior, not clinical qualification or a production deployment.*
+
 **Existing local demo?** This build uses schema v2. A v1 runtime is preserved and refused, not silently
 migrated. Start a fresh synthetic runtime with `demo --runtime .runtime-v2`; see the [runbook](docs/runbook.md).
 

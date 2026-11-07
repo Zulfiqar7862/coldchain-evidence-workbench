@@ -81,7 +81,7 @@ All raw RED/GREEN diagnostics remain outside Git, including ephemeral disposable
 The Node regressions are included in CI. CI itself remains unobserved remotely. The initial build was
 visually exercised by an independent browser worker (evaluation/replay/tasks/acknowledgement/queue passed,
 transient tenant leak observed); **the subsequent v2 browser retest FAILED with persistent detail under an empty reader tenant**.
-The further DOM-reset repair below requires another independent visual retest; publication remains blocked. Fresh repaired runtime
+That failure remains recorded; the later independent visual retest of `5de05e4` passed as described below. Fresh repaired runtime
 HTTP checks passed: three authorized cases, empty other tenant, review metadata, seeded replay, no-store
 assets, authentication denial and favicon 204. A separate real-process smoke tested restart/persistence.
 
@@ -113,7 +113,16 @@ marker is **UI dom-reset-v3**, with matching versioned asset URLs; UI/assets rem
 and in-app refresh do not update already executing scripts: navigate/reload and verify the marker.
 
 Eight actual-markup DOM/CSS tests and fifteen transport race tests pass. jsdom has no layout/rendering
-engine, so these results **do not replace the still-pending independent visual browser retest**.
+engine, so those results did not replace independent visual review.
+
+**Independent browser retest subsequently PASSED on `5de05e4087205cd0bcf7f195d0ae60d8f7162e57`, with
+visible `UI dom-reset-v3`:** assembly and captured replay; local QA acknowledgement with the notice still
+pending; locking QA then opening the Reader tenant showed zero cases, zero obligations and empty detail
+even after workspace refresh; returning to QA showed four unresolved tasks. Independent final review
+reported no code/security/confidentiality blockers for that SHA, not production or clinical qualification.
+Two actual screenshots were manually inspected for secrets: only invented case/product/tenant data and
+public bundle hashes were visible. Re-encoding removed PNG metadata before adding them to the repository.
+The earlier browser tab's executing asset identity remains unknown; **no cache cause has been proved**.
 
 ## Representative invariants and named tests
 
@@ -162,7 +171,7 @@ production capacity, multi-tenancy fairness or notification compliance.
 | Real signing / MFA / dual professional signers | Deferred; local acknowledgement explicitly not legal signing |
 | Verified regulator delivery and receipts | Deferred; SENT is a role's assertion, not actual transmission |
 | Captured hash-checked inputs and linked replay | Implemented/tested; proves reproducibility, not evidence truth |
-| Frontend controls and API wiring | Implemented; 23 Node race/actual-DOM regressions and API/syntax checked; v2 browser retest failed; new identifiable build visual retest pending |
+| Frontend controls and API wiring | Implemented; 23 Node race/actual-DOM regressions/API/syntax checked; independent dom-reset-v3 browser retest passed on `5de05e4` |
 | Metrics, fair scheduling, regional PostgreSQL/RLS/WORM | Designed; not implemented/executed |
 | CI YAML | Configured with pinned actions/read-only permissions; **not yet observed** on GitHub |
 | Internet hardening / production or clinical qualification | Not performed |

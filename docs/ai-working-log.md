@@ -97,7 +97,7 @@ coverage denominators differ by interpreter and are recorded separately in accep
 audit reported cache-deserialization warnings but no known vulnerabilities; installed-dependency audit
 was clean. After the browser worker finished, preserved its v1 runtime, stopped that process and started
 a fresh v2 runtime on the same loopback port. Read-only live HTTP checks passed. Repaired visual UI review
-and independent publication/security approval remain pending; no remote was created or pushed.
+and independent publication/security approval were pending at that checkpoint; no remote had been created or pushed.
 
 ## Failed v2 browser retest and DOM reset follow-up
 
@@ -121,4 +121,17 @@ workflow checks are verification, not retroactively claimed RED discoveries.
 The new DOM library is only a development dependency, pinned in package-lock.json; Node is still not an
 application runtime. No browser process, screenshot automation, original data or external case API was
 used. Fresh Python, Node, lint, audits and real-socket persistence smoke results are in acceptance.md.
-A new independent browser retest is required; no public remote or publication has been performed.
+At that checkpoint a new independent browser retest was required; no public remote or publication had been performed.
+
+## Independent visual acceptance and approved source publication
+
+The coordinator subsequently reported an independent final review of `5de05e4` with no code/security/
+confidentiality blockers and a PASSED real-browser retest with visible `UI dom-reset-v3`. Assembly, replay,
+QA acknowledgement with a pending notice, empty Reader tenant after lock/refresh, and restored QA tasks
+were checked. The earlier failed browser result is retained; this does not establish a cache cause.
+
+Inspected the two supplied real-browser screenshots before copying: only synthetic fixture names, role
+labels and public bundle hashes were visible, with no credential fields or keys. Re-encoded them without
+PNG metadata and added them as actual UI captures alongside the separately labelled conceptual GIF.
+Publication of this new original public repository was explicitly authorized; old repositories and their
+branches remain untouched. Remote CI results will be recorded only after an actual run is read.
