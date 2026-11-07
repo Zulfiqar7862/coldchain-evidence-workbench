@@ -228,3 +228,30 @@ def test_nonstring_attachment_text_cannot_crash_approval(api, text):
     doc_id = response.json()["id"]
     response = c.post(f"/api/cases/DEMO-ALPHA/documents/{doc_id}/approval", headers=hdr(t["qa"]))
     assert response.status_code == 409
+
+
+def test_qa_can_inspect_proposed_supersession_before_approval(api):
+    from workbench.demo import example_document
+
+    c, t, s, a = api
+    old = next(d for d in s.documents(a["qa"], "DEMO-ALPHA") if d["kind"] == "sop")
+    document = example_document(s.case(a["qa"], "DEMO-ALPHA")["input"], "sop")
+    document["supersedes"] = [old["id"]]
+    attached = c.post("/api/cases/DEMO-ALPHA/documents", headers=hdr(t["op"]), json=document)
+    assert attached.status_code == 200
+    docs = c.get("/api/cases/DEMO-ALPHA/documents", headers=hdr(t["qa"])).json()
+    proposed = next(d for d in docs if d["id"] == attached.json()["id"])
+    assert proposed["supersedes"] == [old["id"]]
+    assert proposed["scope"] == document["scope"]
+    assert proposed["effective_from"] and proposed["effective_to"]
+    assert not proposed["approved"]
+    assert next(d for d in docs if d["id"] == old["id"])["approved"]
+    assert (
+        c.post(
+            f"/api/cases/DEMO-ALPHA/documents/{proposed['id']}/approval", headers=hdr(t["qa"])
+        ).status_code
+        == 200
+    )
+    final = c.get("/api/cases/DEMO-ALPHA/documents", headers=hdr(t["qa"])).json()
+    assert not next(d for d in final if d["id"] == old["id"])["approved"]
+    assert next(d for d in final if d["id"] == proposed["id"])["supersedes"] == [old["id"]]

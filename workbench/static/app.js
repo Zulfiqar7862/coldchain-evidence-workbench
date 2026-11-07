@@ -515,6 +515,29 @@ async function loadAttachments(ctx = caseContext()) {
           (d.approved ? "APPROVED (synthetic)" : "NOT ACTIVE / NOT APPROVED"),
       ),
       el("p", d.citation),
+      el("pre", "Exact scope: " + JSON.stringify(d.scope, null, 2)),
+      el(
+        "small",
+        "Effective from: " +
+          berlin(d.effective_from) +
+          " (source: " +
+          d.effective_from +
+          ")",
+      ),
+      el(
+        "small",
+        "Effective until (exclusive): " +
+          berlin(d.effective_to) +
+          " (source: " +
+          d.effective_to +
+          ")",
+      ),
+      el(
+        "p",
+        "Proposed supersession IDs: " +
+          (d.supersedes?.length ? d.supersedes.join(", ") : "none") +
+          ". Approval deactivates these predecessors for future assemblies; old bundles are unchanged.",
+      ),
     );
     const detail = el("details");
     detail.append(
@@ -547,7 +570,15 @@ async function loadAttachments(ctx = caseContext()) {
           guarded(async (ctx) => {
             if (
               !window.confirm(
-                "Have you verified these synthetic bytes, exact scope, effective interval and authority? This is NOT a professional signature.",
+                "Have you verified these synthetic bytes and authority?\nExact scope: " +
+                  JSON.stringify(d.scope) +
+                  "\nEffective: " +
+                  berlin(d.effective_from) +
+                  " until (exclusive) " +
+                  berlin(d.effective_to) +
+                  "\nApproval deactivates predecessor IDs: " +
+                  (d.supersedes?.length ? d.supersedes.join(", ") : "none") +
+                  ". Old bundles remain unchanged. This is NOT a professional signature.",
               )
             )
               return;

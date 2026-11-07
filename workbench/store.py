@@ -299,6 +299,12 @@ class Store:
                 (actor["tenant"], case_id),
             )
         }
+        replacements = {r["id"]: [] for r in rows}
+        for relation in db.execute(
+            "SELECT r.doc_id,r.prior_id FROM document_replacements r JOIN documents d ON d.id=r.doc_id WHERE d.tenant=? AND d.case_id=? ORDER BY r.prior_id",
+            (actor["tenant"], case_id),
+        ):
+            replacements[relation["doc_id"]].append(relation["prior_id"])
         documents = []
         for r in rows:
             if digest(r["content"]) != r["hash"]:
@@ -313,6 +319,7 @@ class Store:
                     "verified": True,
                     "approved": r["approver"] is not None and r["id"] not in superseded,
                     "approver": r["approver"],
+                    "supersedes": replacements[r["id"]],
                     "policy": data.get("policy"),
                     "study_type": data.get("study_type"),
                     "history": data.get("history"),

@@ -422,3 +422,29 @@ test("approval and evidence-resolution closures retain original session and sele
     assert.equal(h.requests.length, count);
   }
 });
+test("QA sees proposed replacement targets, scope and dates before approving", async () => {
+  const h = harness();
+  loginDirect(h);
+  const pending = h.run("guarded(()=>loadAttachments())");
+  const d = {
+    id: 31,
+    kind: "sop",
+    approved: false,
+    citation: "SYNTHETIC proposal",
+    content: "bytes",
+    scope: scope("ILLUSTRATIVE-PRODUCT"),
+    supersedes: [8, 12],
+    effective_from: "2030-01-01T00:00:00Z",
+    effective_to: "2031-01-01T00:00:00Z",
+  };
+  h.respond(h.requests[0], [d]);
+  await pending;
+  const visible = h.text(h.get("attachment-list"));
+  for (const expected of [
+    "8, 12",
+    "ILLUSTRATIVE-PRODUCT",
+    "2030-01-01T00:00:00Z",
+    "2031-01-01T00:00:00Z",
+  ])
+    assert.equal(visible.includes(expected), true, expected);
+});
