@@ -82,13 +82,13 @@ in a separate owner-only report. Named tests below are checked by offline docume
 | Pin review inputs despite retries, races and approval changes | `Store.acknowledge` | `test_two_reviewers_racing_only_one_acknowledges`, `test_approval_alone_invalidates_an_otherwise_current_bundle` |
 | Reconstruct old reasoning without later outcome leakage | `Store.replay`, immutable bundles | `test_replay_original_inputs_not_later_outcome`, `test_approved_resolution_creates_linked_version_not_overwrite`; only evaluator v1 retained |
 | Deadlines survive failed evidence assembly and restart | Independent obligations ledger | `test_assembly_error_does_not_hide_deadline_and_order`, real-process smoke; no legal calendar or guaranteed delivery |
-| Empty/new tenant cannot inherit old UI detail | Session + selection generations, synchronous DOM erasure | 23 Node transport/actual-DOM tests; previous independent dom-reset-v3 browser pass; no new visual claim |
+| Empty/new tenant cannot inherit old UI detail | Session + selection generations, synchronous DOM erasure | 23 Node transport/actual-DOM tests; prior dom-reset-v3 browser pass at its recorded SHA; current browser connection attempts UNVERIFIED |
 | Durable recovery and change control | SQLite transactions, backup, version refusal | `test_backup_restore_integrity_and_obligations`; no automatic v1 migration or seven-year compliance |
 | Company reference remains runnable and navigable | [Text tests](../tests/test_reference.py), [smoke](../scripts/smoke.py) | Local links/anchors/assets, named tests, CLI help and exact tutorial command checked; not universal prose correctness |
 | Real clinical disposition, residency, historical qualification | [HLD](hld.md), [qualification gates](runbook.md#change-qualification) | Designed/deferred; not demonstrated by three fictional fixtures |
 
 Exact commands, interpreter-specific denominators and exclusions live **only in the [verification
-ledger](acceptance.md)**. A configured CI workflow or old successful run is not evidence for new unpushed changes.
+ledger](acceptance.md)**. Use the exact tested SHA/run in that ledger: configured CI or an older success is not proof of a newer revision.
 
 ## 5. HLD and LLD: one boundary at a time
 

@@ -208,3 +208,20 @@ then verified a negative control by temporarily replaying the prior stale Python
 the current ledger. This is a documented verification control, not an extra production-bug discovery.
 Current final totals supersede the
 intermediate 144-test verification above; historical results remain labelled historical.
+
+
+## Current visual limitation and reviewed publication decision
+
+Fresh parent browser attempts could not connect on the original loopback port or a fresh port with
+literal IPv4: ERR_CONNECTION_REFUSED. No keys or current UI workflows were exercised in those attempts.
+Box-doctor passed 11 checks; socket/process inspection and direct HTTP proved local page/assets/health
+and authenticated QA/Reader APIs healthy. The original process was still alive; a separate fresh private
+runtime also served HTTP successfully. No unrelated process was stopped, no cache/network cause was
+proved, and no visual pass is claimed. The prior dom-reset-v3 browser pass remains tied to its old SHA.
+
+The independent reviewer reported no source/code blocker, confirmed source coordinates, repeated the
+152 Python/23 Node/lint/smoke/audit checks and rejected adversarial probes. The coordinator informed the
+owner and authorized publishing the bounded update with current visual verification UNVERIFIED. Only
+the existing new public repository's build/evidence-workbench branch is in scope; no main/old repository,
+PR, merge or production deployment. Actual CI evidence will be recorded after reading a completed run.
+Private source alignment and board-target qualifiers remain outside the public tree.

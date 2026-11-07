@@ -1,6 +1,6 @@
 # Verification ledger and honest boundaries
 
-**Local follow-up: 7 November 2026 (Europe/Berlin); changes awaiting independent review, not pushed.**
+**Reviewed follow-up: 7 November 2026 (Europe/Berlin). Current visual-browser check: UNVERIFIED.**
 Start with the [company reference](company-reference.md) for meaning, roles and requirement-to-code/test
 mapping. This page owns exact execution results. Logs remain private outside Git. No result below is
 clinical qualification, proof of every possible input, or a production-readiness certificate.
@@ -60,7 +60,8 @@ text were scanned for known private-source identifiers, exact generated demo key
 forbidden source/runtime files: **zero findings**. UI code/assets are unchanged from the previously
 reviewed captures. This is a bounded scan, not a penetration test or proof no undiscovered secret exists.
 Original attachments, source citations, runtime keys, raw logs and the detailed alignment report remain
-outside the public tree. Independent review is still required before publishing these changes.
+outside the public tree. Independent source/code review reported no new blocker; the coordinator authorized publication of the
+bounded update with the current visual limitation explicitly retained. This is not production qualification.
 
 ## Current failing-first evidence
 
@@ -102,7 +103,14 @@ collision or cache cause was proved. Node tests alone were not treated as visual
 assembly/replay; QA acknowledgement with a pending notice; lock → empty Reader tenant → zero cases and
 obligations with empty detail even after Refresh; restore QA → four tasks. The two README screenshots
 were manually inspected for secrets and re-encoded without PNG metadata. This follow-up changes no
-frontend assets; **no new browser retest is claimed**. Full chronological detail and initial scaffold/TDD
+frontend assets. **Fresh current browser attempts could not connect:** both the original loopback port
+and a fresh port using literal IPv4 returned ERR_CONNECTION_REFUSED to the browser, so current visual
+workflow verification is **UNVERIFIED**, not passed. Box-doctor passed all 11 checks; direct local HTTP
+served page/health/assets and authenticated QA/Reader APIs successfully on both ports. No cache,
+network-namespace or application cause was established. No further browser retries were used as proof.
+Independent code/source review reported no new blocker, repeated 152 Python/23 Node checks plus
+lint/smoke/audits and adversarial probes successfully. The coordinator accepted this as a disclosed
+current visual-verification limitation, not a demonstrated new frontend defect or production approval. Full chronological detail and initial scaffold/TDD
 limitations remain in the [honest AI log](ai-working-log.md), rather than duplicated here.
 
 ## Capability status and exclusions
@@ -118,7 +126,7 @@ limitations remain in the [honest AI log](ai-working-log.md), rather than duplic
 | Professional signing, MFA/dual signers, multilingual regulated output | Deferred; local acknowledgement is not legal signing |
 | Real connectors, batch ledger/raw-series completeness, clinical historical comparison | Deferred; no original case outcome comparison executed |
 | PostgreSQL/RLS, regional residency, WORM, outbox, fair scheduling, monitoring | Designed/deferred; no multi-host or scale qualification |
-| Latest local changes / remote CI | Unpushed; independent review required. Old CI is not evidence for this revision |
+| Reviewed follow-up / remote CI | Independent source/code review completed; current visual UNVERIFIED. Remote CI is recorded only after an actual run is read |
 
 No full static type checker, Docker build, production penetration test, representative burst/load/fault
 campaign or clinical validation was performed. No test suite covers all possible cases. Historical labels
@@ -135,6 +143,7 @@ Previously published revision: `7aa3ceda8212beb093c957ec78135a3c518faa3e`; defau
 `build/evidence-workbench`. Previously read successful run:
 https://github.com/Zulfiqar7862/coldchain-evidence-workbench/actions/runs/42371365226
 — 112 pytest + 23 Node tests per Python 3.12/3.13/3.14 job, lint/smoke/audits successful. This is historical
-evidence only. No new push, PR, merge, deployment or production/old-repository change occurred in this follow-up.
+evidence only. The follow-up is authorized for the same public `build/evidence-workbench` branch only. No PR, merge,
+production deployment or old-repository change is part of it. Current CI must be checked at its exact SHA.
 Monthly Dependabot automatically opened four PRs after the original publication; none was manually
 created, merged, closed or changed by this work.
