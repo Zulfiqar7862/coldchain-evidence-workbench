@@ -225,3 +225,11 @@ owner and authorized publishing the bounded update with current visual verificat
 the existing new public repository's build/evidence-workbench branch is in scope; no main/old repository,
 PR, merge or production deployment. Actual CI evidence will be recorded after reading a completed run.
 Private source alignment and board-target qualifiers remain outside the public tree.
+
+
+Published only the authorized build/evidence-workbench branch of the same public original repository.
+Read completed run42375358187 for70df1e1d4520070cb387f74d174de1fa53a0d375: all three Python jobs
+succeeded with152 pytest/23 Node tests each, lint/format, real-socket restart/four-task smoke and audits.
+Recorded action-runtime/runner deprecation annotations rather than calling CI warning-free. This
+follow-up records that preceding tested revision; the delivery record checks the final documentation
+revision separately. No current visual pass, real clinical outcome or production deployment is inferred.

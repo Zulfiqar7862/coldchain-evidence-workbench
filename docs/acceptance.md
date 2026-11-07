@@ -126,7 +126,7 @@ limitations remain in the [honest AI log](ai-working-log.md), rather than duplic
 | Professional signing, MFA/dual signers, multilingual regulated output | Deferred; local acknowledgement is not legal signing |
 | Real connectors, batch ledger/raw-series completeness, clinical historical comparison | Deferred; no original case outcome comparison executed |
 | PostgreSQL/RLS, regional residency, WORM, outbox, fair scheduling, monitoring | Designed/deferred; no multi-host or scale qualification |
-| Reviewed follow-up / remote CI | Independent source/code review completed; current visual UNVERIFIED. Remote CI is recorded only after an actual run is read |
+| Reviewed follow-up / remote CI | Successful observed run for `70df1e1` across Python 3.12–3.14; exact record below. Current visual UNVERIFIED |
 
 No full static type checker, Docker build, production penetration test, representative burst/load/fault
 campaign or clinical validation was performed. No test suite covers all possible cases. Historical labels
@@ -147,3 +147,18 @@ evidence only. The follow-up is authorized for the same public `build/evidence-w
 production deployment or old-repository change is part of it. Current CI must be checked at its exact SHA.
 Monthly Dependabot automatically opened four PRs after the original publication; none was manually
 created, merged, closed or changed by this work.
+
+
+## Observed reviewed-update CI — exact tested revision
+
+- Tested SHA: `70df1e1d4520070cb387f74d174de1fa53a0d375`.
+- Actual completed run: https://github.com/Zulfiqar7862/coldchain-evidence-workbench/actions/runs/42375358187
+- Observed conclusion: **success**; all `verify (3.12)`, `verify (3.13)`, `verify (3.14)` jobs succeeded.
+- Complete logs read: **152 pytest tests and 23 Node tests per job**, Ruff/format, real-HTTP four-task/restart
+  smoke, npm audit and hash-pinned runtime pip audit all succeeded. These are software checks, not current
+  visual verification, clinical qualification or production capacity evidence.
+- Runner annotations warned that pinned actions declare deprecated Node20 compatibility and GitHub runs
+  them under Node24; ubuntu-latest migration was also annotated. No failure resulted; separately review
+  action-pin/runtime migration rather than treating a green run as future-proof infrastructure.
+- This documentation commit records the preceding tested SHA deliberately. Its own exact-SHA run is
+  checked separately after push and reported in the delivery evidence, avoiding an endless CI/docs loop.
