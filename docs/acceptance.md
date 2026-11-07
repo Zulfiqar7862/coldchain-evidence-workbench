@@ -201,5 +201,8 @@ executed successfully (exit 0); no runtime database or generated key file is tra
 - This records the preceding tested SHA deliberately. The follow-up documentation commit records this
   observation; its own CI is checked separately rather than creating an infinite documentation/CI loop.
 
-No PR, merge, old-repository write, production deployment or public demo-server exposure was performed.
-The only pushed branch is `build/evidence-workbench`, also the new repository's default branch.
+The implementation did not manually open or merge a PR, write an old repository, deploy production or
+expose the demo server publicly. It pushed only `build/evidence-workbench`, the new default branch.
+The committed monthly Dependabot configuration caused GitHub to automatically open four dependency-update
+PRs (#1–#4) after publication. Those service-created PRs were not merged, closed or otherwise modified by
+the implementation; their branches are separate from the reviewed default branch.

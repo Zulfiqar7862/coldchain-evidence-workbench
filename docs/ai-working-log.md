@@ -142,3 +142,8 @@ Read completed GitHub Actions run `42371195914` for exact SHA
 23 Node tests per job, successful lint/smoke/audits. This follow-up documentation records that preceding
 run; the final documentation SHA's run is verified separately, without another recursive docs commit.
 No claim of clinical qualification or proven cache cause follows from these successful checks.
+
+Publication side effect observed: the committed monthly Dependabot configuration automatically opened
+four dependency-update PRs (#1–#4). No PR creation API/command or merge was performed by the implementation;
+these service-created PRs were left unmerged and unmodified, rather than silently closing them without
+an explicit instruction. This is reported separately from the successful reviewed-branch CI.
