@@ -15,6 +15,12 @@ directory for any custom runtime. Bootstrap never overwrites an existing directo
 refuses an existing runtime; `demo` reuses its database. A partially created runtime is not silently reset.
 Inspect it and use a new directory rather than destroy evidence.
 
+**Schema v2 compatibility:** this build refuses v1 databases without changing them. There is no automatic
+migration. Keep the old runtime intact and start a new synthetic demo, e.g. `demo --runtime .runtime-v2`.
+Do not relabel a schema version or delete records to bypass the check. Real retained data requires a
+separately reviewed offline migration, integrity/ownership/replay verification and rollback plan. Backup
+restore below assumes a compatible v2 database; a v1 backup must not be opened as v2.
+
 Role keys are valid for 24 hours. To create a fresh independent demo, use a new runtime directory.
 For a retained database, a trusted local administrator can provision a new unique actor ID with the
 same approved tenant and role using `Store.provision`; no HTTP provisioning endpoint exists. That is a

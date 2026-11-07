@@ -8,7 +8,7 @@ for the generated `/openapi.json` contract. No hidden endpoint performs a produc
 | Table | Key / immutable content | Notes |
 |---|---|---|
 | `actors` | actor ID, tenant, role, token hash, expiry, active | Trusted CLI administration; only mutable control table |
-| `cases` | global case ID, tenant, original payload, raw flag, created | Payload: synthetic marker, exact scope, event time, observation |
+| `cases` | composite `(tenant, case ID)`, original payload, raw flag, created | Payload: synthetic marker, exact scope, event time, observation |
 | `documents` | integer ID, tenant/case, kind, scope/effectivity/citation metadata, bytes, SHA, supersedes | JSON UTF-8 attachments <=64 KiB; bytes never fetched from caller URL |
 | `document_replacements` | replacement document / prior document | Explicit many-source reconciliation; inactive until replacement approval |
 | `approvals` | document ID, authenticated QA actor, timestamp | One local synthetic approval; no client-approved flag |
@@ -19,8 +19,10 @@ for the generated `/openapi.json` contract. No hidden endpoint performs a produc
 
 All except `actors` and schema metadata reject application UPDATE/DELETE using triggers.
 Triggers are not a privileged-admin security boundary. Foreign keys are enabled per connection.
-Case IDs are globally unique in this demo; a conflict can reveal existence of an ID across tenants.
-Production requires tenant-scoped keys or unguessable global IDs and a reviewed non-disclosure policy.
+Case IDs are unique **within a tenant**, with composite tenant/case foreign keys. The same public ID
+can be created independently in two tenants. Missing and inaccessible case reads have the same response;
+a duplicate conflict concerns only the caller's own tenant. Numeric document/bundle sequence IDs remain
+global internal surrogates; access is always tenant-scoped (no claim to hide aggregate allocation volume).
 
 All stored instants are normalized aware UTC ISO-8601 strings; UI displays Europe/Berlin explicitly.
 Source validity uses `effective_from <= event_at < effective_to`. No end-date guessing or revision ordering.
@@ -33,7 +35,8 @@ The imported optional deadline is a triage input, not a programme-derived legal 
 
 `Attached → QA-approved → active` is independent of applicability. An approved replacement explicitly
 names one or more earlier sources of the same kind/case/tenant; only approved replacements deactivate predecessors.
-Two concurrently active applicable SOPs create an ambiguity; neither latest document ID nor name wins.
+QA sees proposed predecessor IDs, exact scope and effective interval in both the document API and
+UI/approval confirmation **before** approval. Two concurrently active applicable SOPs create an ambiguity; neither latest document ID nor name wins.
 Study content must explicitly identify `study_type=excursion` for this evaluator.
 
 ```mermaid
@@ -98,7 +101,10 @@ Unknown fields in write models are rejected. Extra query strings such as `tenant
 Every store operation opens a fresh connection and takes `BEGIN IMMEDIATE`; synchronous FULL, foreign
 keys ON, timeout 10 seconds, default DELETE journaling. This intentionally trades throughput for a simple
 serial order. No WAL mode is enabled: older system SQLite versions have a known WAL-reset issue.
-Schema bootstrapping is idempotent for version 1, not a general migration engine. Unknown versions refuse.
+Schema bootstrapping is idempotent for **version 2**, not a general migration engine. Version 1, unknown
+versions and unversioned existing databases refuse **before schema changes**. No automatic migration is
+implemented; use a new disposable synthetic runtime, or commission a separately reviewed offline migration
+that preserves captured hashes and tenant ownership. A fresh runtime is not a migration or data recovery.
 Initialization uses SQLite `executescript` (which may commit schema operations); request transactions do not.
 
 An acknowledgement transaction checks membership, case ownership, existing actor/key request,
@@ -107,7 +113,7 @@ no unresolved tasks, then unique bundle acknowledgement. A repeated identical ke
 response; different content conflicts. Two concurrent reviewers cannot both acknowledge one bundle.
 A new source or approval increments the source revision; stale bundles require reassessment.
 
-Only acknowledgement has request-key retry semantics. Intake has a unique case ID, source attachment
+Only acknowledgement has request-key retry semantics. Intake has a tenant-unique case ID, source attachment
 may duplicate after an uncertain response, and repeated evaluation intentionally creates a new bundle.
 Approvals are unique per document, resolutions per original bundle/reason. Clients must reconcile lists
 before retrying non-idempotent operations. There is no external side effect/outbox in this version.

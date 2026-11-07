@@ -13,10 +13,11 @@ triggers or rewrite data/hashes; production must materially change that boundary
 
 | Threat | Implemented control / evidence | Remaining gap |
 |---|---|---|
-| Cross-tenant object/queue read or update | Membership derived from hashed credential; scoped store methods; API/store negative tests | Single DB, no RLS or separate keys; global-ID collision side channel |
+| Cross-tenant object/queue read or update | Membership derived from hashed credential; scoped store methods; tenant/case composite keys; API/store negative tests | Single DB, no RLS or separate keys; internal numeric allocation volume not hidden |
 | Client claims a role/tenant or omits it | No write-model tenant parameter; forbidden extras; no raw header role trust | Provisioning is a trusted local CLI function |
 | Invalid/revoked/expired token | 256-bit random keys, hashed at rest, active + 24h expiry checked on each operation | No OIDC, MFA, refresh/login session system or rate-limited authentication |
 | XSS / token theft from storage | Plain text DOM rendering, no dynamic HTML insertion, restrictive CSP, no browser key persistence | An extension/local admin or compromised script can read in-memory credentials |
+| Stale asynchronous UI response across logout or case selection | Captured credentials, session/selection/refresh generations; abort on invalidation; post-body checks; deterministic Node regressions | Not a substitute for server-side tenant authorization; browser visual retest is separate |
 | CSRF / DNS rebinding | No cookies; explicit Authorization header; Host allowlist; no permissive CORS | HTTP only; TLS reverse proxy and production origin policy not implemented |
 | Unbounded upload / JSON coercion | 256 KiB streamed body cap; 64 KiB document bytes; strict numeric/boolean validation | UI lists/bundles unpaginated; slow-client resource protection not fully qualified |
 | False authority / wrong product study | Attached bytes + QA role approval + exact scope/effectivity + excursion type + conflict gates | Local approval is simulated; no external study approval verification or delegation |

@@ -329,3 +329,45 @@ def test_explicit_approved_reconciliation_can_resolve_two_sop_revisions(env):
     s.approve(a["qa"], "DEMO-ALPHA", new["id"])
     result = s.resolve(a["qa"], "DEMO-ALPHA", before["id"], "SOP_AUTHORITY", new["id"])
     assert result["status"] == "COMPLETE"
+
+
+def test_schema_v2_tenant_case_key_and_composite_foreign_keys(env):
+    s, a, _ = env
+    create(s, a["op"])
+    other_op = s.authenticate(s.provision("other-op", "meadow", "Operator"))
+    create(s, other_op)
+    with database_connection(s.path) as db:
+        assert db.execute("SELECT version FROM schema_version").fetchall() == [(2,)]
+        key = {r[1]: r[5] for r in db.execute("PRAGMA table_info(cases)")}
+        assert key["tenant"] > 0 and key["id"] > 0
+        assert db.execute("PRAGMA foreign_key_check").fetchall() == []
+        db.execute("PRAGMA foreign_keys=ON")
+        with pytest.raises(sqlite3.IntegrityError):
+            db.execute(
+                "INSERT INTO obligations(tenant,case_id,reportability,status,basis,actor,created) VALUES('no-member-tenant','DEMO-ALPHA','UNKNOWN','PENDING','synthetic','op','2030-01-01')"
+            )
+    assert [x["id"] for x in s.cases(other_op)] == ["DEMO-ALPHA"]
+    assert len(s.queue(other_op)) == len(s.queue(a["op"])) == 1
+
+
+def test_schema_v1_is_refused_without_silent_migration_or_reset(tmp_path):
+    path = tmp_path / "legacy.db"
+    with database_connection(path) as db:
+        db.execute("CREATE TABLE schema_version(version INTEGER PRIMARY KEY)")
+        db.execute("INSERT INTO schema_version VALUES(1)")
+        db.execute("CREATE TABLE cases(id TEXT PRIMARY KEY, tenant TEXT)")
+        db.execute("INSERT INTO cases VALUES('PRIVATE-LEGACY','harbor')")
+    before = path.read_bytes()
+    with pytest.raises(ValueError, match="schema.*migration"):
+        Store(path)
+    assert path.read_bytes() == before
+
+
+def test_unversioned_existing_tables_are_refused_not_adopted(tmp_path):
+    path = tmp_path / "unknown.db"
+    with database_connection(path) as db:
+        db.execute("CREATE TABLE unrelated(id TEXT)")
+    before = path.read_bytes()
+    with pytest.raises(ValueError, match="schema.*migration"):
+        Store(path)
+    assert path.read_bytes() == before

@@ -255,3 +255,41 @@ def test_qa_can_inspect_proposed_supersession_before_approval(api):
     final = c.get("/api/cases/DEMO-ALPHA/documents", headers=hdr(t["qa"])).json()
     assert not next(d for d in final if d["id"] == old["id"])["approved"]
     assert next(d for d in final if d["id"] == proposed["id"])["supersedes"] == [old["id"]]
+
+
+def test_case_identifiers_are_tenant_scoped_without_collision_oracle(api):
+    from workbench.demo import example_payload
+
+    c, t, s, _ = api
+    other_token = s.provision("other-op", "meadow", "Operator")
+    headers = hdr(other_token)
+    # An unknown ID and an ID owned only elsewhere have the same read response.
+    absent = c.get("/api/cases/UNUSED-ID", headers=headers)
+    hidden = c.get("/api/cases/DEMO-ALPHA", headers=headers)
+    assert absent.status_code == hidden.status_code == 403
+    assert absent.json() == hidden.json()
+    for case_id in ["DEMO-ALPHA", "UNUSED-ID"]:
+        payload = example_payload()
+        payload["scope"]["product"] = "SYNTHETIC-MEADOW-ONLY"
+        response = c.post("/api/cases", headers=headers, json={"id": case_id, "payload": payload})
+        assert response.status_code == 200, response.text
+    assert (
+        c.get("/api/cases/DEMO-ALPHA", headers=headers).json()["input"]["scope"]["product"]
+        == "SYNTHETIC-MEADOW-ONLY"
+    )
+    assert (
+        c.get("/api/cases/DEMO-ALPHA", headers=hdr(t["op"])).json()["input"]["scope"]["product"]
+        != "SYNTHETIC-MEADOW-ONLY"
+    )
+    assert c.get("/api/cases/DEMO-ALPHA/documents", headers=headers).json() == []
+    assert len(c.get("/api/cases/DEMO-ALPHA/documents", headers=hdr(t["op"])).json()) > 0
+    evaluated = c.post("/api/cases/DEMO-ALPHA/evaluations", headers=headers)
+    assert evaluated.status_code == 200
+    assert (
+        c.get(f"/api/bundles/{evaluated.json()['id']}/replay", headers=hdr(t["qa"])).status_code
+        == 403
+    )
+    own_duplicate = c.post(
+        "/api/cases", headers=headers, json={"id": "DEMO-ALPHA", "payload": example_payload()}
+    )
+    assert own_duplicate.status_code == 409

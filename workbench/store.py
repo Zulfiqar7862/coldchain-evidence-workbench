@@ -49,38 +49,45 @@ class Store:
                 "SELECT 1 FROM sqlite_master WHERE type='table' AND name='schema_version'"
             ).fetchone():
                 versions = {row[0] for row in db.execute("SELECT version FROM schema_version")}
-                if versions != {1}:
+                if versions != {2}:
                     raise ValueError("unsupported database schema; migration review required")
+            elif db.execute("SELECT 1 FROM sqlite_master WHERE type='table'").fetchone():
+                raise ValueError("unversioned database schema; migration review required")
             db.executescript("""
             CREATE TABLE IF NOT EXISTS schema_version(version INTEGER PRIMARY KEY);
-            INSERT OR IGNORE INTO schema_version VALUES(1);
+            INSERT OR IGNORE INTO schema_version VALUES(2);
             CREATE TABLE IF NOT EXISTS actors(id TEXT PRIMARY KEY, tenant TEXT NOT NULL, role TEXT NOT NULL,
               token_hash TEXT UNIQUE NOT NULL, expires TEXT NOT NULL, active INTEGER NOT NULL DEFAULT 1);
-            CREATE TABLE IF NOT EXISTS cases(id TEXT PRIMARY KEY, tenant TEXT NOT NULL, payload TEXT NOT NULL,
-              created TEXT NOT NULL, raw_flag TEXT);
+            CREATE TABLE IF NOT EXISTS cases(id TEXT NOT NULL, tenant TEXT NOT NULL, payload TEXT NOT NULL,
+              created TEXT NOT NULL, raw_flag TEXT, PRIMARY KEY(tenant,id));
             CREATE TABLE IF NOT EXISTS documents(id INTEGER PRIMARY KEY AUTOINCREMENT, tenant TEXT NOT NULL,
-              case_id TEXT NOT NULL REFERENCES cases(id), kind TEXT NOT NULL, metadata TEXT NOT NULL,
-              content TEXT NOT NULL, hash TEXT NOT NULL, created TEXT NOT NULL);
+              case_id TEXT NOT NULL, kind TEXT NOT NULL, metadata TEXT NOT NULL,
+              content TEXT NOT NULL, hash TEXT NOT NULL, created TEXT NOT NULL,
+              FOREIGN KEY(tenant,case_id) REFERENCES cases(tenant,id));
             CREATE TABLE IF NOT EXISTS document_replacements(doc_id INTEGER NOT NULL REFERENCES documents(id),
               prior_id INTEGER NOT NULL REFERENCES documents(id), PRIMARY KEY(doc_id,prior_id));
             CREATE TABLE IF NOT EXISTS approvals(doc_id INTEGER PRIMARY KEY REFERENCES documents(id),
               actor TEXT NOT NULL, created TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS bundles(id INTEGER PRIMARY KEY AUTOINCREMENT, tenant TEXT NOT NULL,
-              case_id TEXT NOT NULL REFERENCES cases(id), parent_id INTEGER REFERENCES bundles(id),
+              case_id TEXT NOT NULL, parent_id INTEGER REFERENCES bundles(id),
               snapshot TEXT NOT NULL, result TEXT NOT NULL, revision TEXT NOT NULL,
-              created TEXT NOT NULL, hash TEXT NOT NULL);
+              created TEXT NOT NULL, hash TEXT NOT NULL,
+              FOREIGN KEY(tenant,case_id) REFERENCES cases(tenant,id));
             CREATE TABLE IF NOT EXISTS acknowledgements(id INTEGER PRIMARY KEY AUTOINCREMENT,
               tenant TEXT NOT NULL, case_id TEXT NOT NULL, bundle_id INTEGER UNIQUE NOT NULL REFERENCES bundles(id),
               actor TEXT NOT NULL, signer_label TEXT NOT NULL, outcome TEXT NOT NULL,
               request_key TEXT NOT NULL, request_hash TEXT NOT NULL, created TEXT NOT NULL,
-              UNIQUE(tenant,actor,request_key));
+              UNIQUE(tenant,actor,request_key),
+              FOREIGN KEY(tenant,case_id) REFERENCES cases(tenant,id));
             CREATE TABLE IF NOT EXISTS obligations(id INTEGER PRIMARY KEY AUTOINCREMENT, tenant TEXT NOT NULL,
-              case_id TEXT NOT NULL REFERENCES cases(id), reportability TEXT NOT NULL, deadline TEXT,
-              status TEXT NOT NULL, basis TEXT NOT NULL, actor TEXT NOT NULL, created TEXT NOT NULL);
+              case_id TEXT NOT NULL, reportability TEXT NOT NULL, deadline TEXT,
+              status TEXT NOT NULL, basis TEXT NOT NULL, actor TEXT NOT NULL, created TEXT NOT NULL,
+              FOREIGN KEY(tenant,case_id) REFERENCES cases(tenant,id));
             CREATE TABLE IF NOT EXISTS resolutions(id INTEGER PRIMARY KEY AUTOINCREMENT,tenant TEXT NOT NULL,
               case_id TEXT NOT NULL,bundle_id INTEGER NOT NULL REFERENCES bundles(id),reason TEXT NOT NULL,
               doc_id INTEGER NOT NULL REFERENCES documents(id),resolved_bundle INTEGER NOT NULL REFERENCES bundles(id),
-              actor TEXT NOT NULL, created TEXT NOT NULL,UNIQUE(bundle_id,reason));
+              actor TEXT NOT NULL, created TEXT NOT NULL,UNIQUE(bundle_id,reason),
+              FOREIGN KEY(tenant,case_id) REFERENCES cases(tenant,id));
             CREATE INDEX IF NOT EXISTS cases_tenant ON cases(tenant,id);
             CREATE INDEX IF NOT EXISTS documents_case ON documents(tenant,case_id,id);
             CREATE INDEX IF NOT EXISTS bundles_case ON bundles(tenant,case_id,id DESC);
