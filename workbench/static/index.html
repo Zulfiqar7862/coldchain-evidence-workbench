@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="Synthetic evidence-first cold-chain review workbench. Not a clinical decision system."
+    />
+    <title>Evidence Workbench · Synthetic demonstration</title>
+    <link rel="stylesheet" href="/static/app.css" />
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Evidence Workbench home"
+        ><span class="brand-mark">ew</span> EVIDENCE
+        <strong>WORKBENCH</strong></a
+      ><span class="mode">SYNTHETIC / LOCAL</span
+      ><span class="identity" id="identity">Private by default</span
+      ><button id="logout" class="quiet" hidden>Lock workspace</button>
+    </header>
+    <div id="login" class="login-wrap">
+      <section class="intro">
+        <p class="eyebrow">EVIDENCE, NOT GUESSWORK</p>
+        <h1>
+          A temperature alert<br />is a question.<br /><em
+            >Show your working.</em
+          >
+        </h1>
+        <p class="lede">
+          Find the right evidence. Resolve what is missing.<br />Keep the
+          notification clock running.
+        </p>
+        <ol class="intro-steps">
+          <li><span>01</span>Discover sources. Names are not authority.</li>
+          <li><span>02</span>Check scope, bytes, approval and arithmetic.</li>
+          <li>
+            <span>03</span>A human reviews. The deadline stays independent.
+          </li>
+        </ol>
+        <p class="disclaimer">
+          All people, products, policies and events in this demonstration are
+          invented.<br />Never use this software to release, quarantine or
+          destroy medicine.
+        </p>
+      </section>
+      <section class="login-card">
+        <span class="mini-label">YOUR LOCAL WORKSPACE</span>
+        <h2>Open the workbench</h2>
+        <p>
+          No account, cloud service or paid API needed.<br />Use the key
+          generated on your own machine.
+        </p>
+        <form id="login-form">
+          <label for="credential">Local role key</label
+          ><input
+            id="credential"
+            type="password"
+            required
+            autocomplete="off"
+            placeholder="Paste generated credential"
+            spellcheck="false"
+          /><button class="primary" type="submit">
+            Open workspace <span aria-hidden="true">→</span>
+          </button>
+        </form>
+        <details>
+          <summary>Where do I find my key?</summary>
+          <p>In another terminal, inside the project:</p>
+          <code>uv run --locked python -m workbench credential harbor-qa</code>
+          <p>
+            Keys expire after 24 hours. They are held only in page memory.
+            Operator and Regulatory keys are separate roles.
+          </p>
+        </details>
+        <div class="safety-note">
+          <span>◆</span> A local review acknowledgement is not a legally
+          qualified signature.
+        </div>
+      </section>
+    </div>
+    <main id="workspace" hidden>
+      <section class="page-heading">
+        <div>
+          <p class="eyebrow">REVIEW DESK / SYNTHETIC DATA</p>
+          <h1>The case, with its evidence.</h1>
+          <p>Trust is a chain. Every link needs a source.</p>
+        </div>
+        <button id="refresh" class="secondary">↻ Refresh workspace</button>
+      </section>
+      <section class="summary-grid" aria-label="Workspace summary">
+        <article>
+          <span>CASE FILES</span><strong id="case-count">—</strong
+          ><small>Within your tenant only</small>
+        </article>
+        <article>
+          <span>OPEN CLOCKS</span><strong id="notice-count">—</strong
+          ><small>Unknown does not mean exempt</small>
+        </article>
+        <article class="summary-rule">
+          <span>THE NON-NEGOTIABLE</span><strong>Two independent tracks.</strong
+          ><small>Review acknowledgement never closes a notification.</small>
+        </article>
+      </section>
+      <div class="desk-grid">
+        <aside class="case-panel">
+          <div class="panel-heading">
+            <h2>Case files</h2>
+            <span class="micro">SELECT TO INSPECT</span>
+          </div>
+          <div id="case-list" class="case-list"></div>
+          <div class="aside-note">
+            Local fixtures demonstrate a supported path, missing authority and
+            an out-of-envelope result. None is a clinical verdict.
+          </div>
+        </aside>
+        <section class="case-detail" aria-labelledby="selected-case">
+          <div class="case-title">
+            <div>
+              <p class="eyebrow" id="case-caption">EVIDENCE FILE</p>
+              <h2 id="selected-case">Select a case</h2>
+              <p id="case-scope">
+                Choose a case on the left to see the inputs and open questions.
+              </p>
+            </div>
+            <button id="evaluate" class="primary" disabled>
+              Assemble evidence
+            </button>
+          </div>
+          <div class="chain">
+            <span>01 · Discover</span><i>→</i><span>02 · Verify & evaluate</span
+            ><i>→</i><span>03 · Human review</span>
+          </div>
+          <div id="measurements" class="measurements"></div>
+          <section id="evaluation-panel" hidden>
+            <div class="result-heading">
+              <span id="recommendation" class="result"></span
+              ><span class="micro" id="bundle-version"></span>
+            </div>
+            <p class="evaluation-note">
+              Arithmetic support under an invented policy. Not a product
+              disposition.
+            </p>
+            <div id="checks"></div>
+            <div class="bundle-strip">
+              <code id="bundle-hash"></code
+              ><button id="replay" class="quiet">Replay captured inputs</button
+              ><button id="download" class="quiet">Download bundle</button>
+            </div>
+            <h3>
+              Resolution tasks <span class="micro" id="task-count"></span>
+            </h3>
+            <div id="evidence-tasks"></div>
+            <details class="source-details">
+              <summary>Candidate sources & rejection reasons</summary>
+              <div id="candidate-list"></div>
+              <p>
+                Discovery → identity / strength / presentation → source
+                verification → governing authority → policy evaluation →
+                authorized human disposition (deferred).
+              </p>
+            </details>
+            <form id="review-ack" class="review-form">
+              <h3>Local review acknowledgement</h3>
+              <p>
+                Role is verified on the server. This does not release product or
+                notify anyone.
+              </p>
+              <label for="review-label"
+                >Reviewer label (not your identity proof)</label
+              ><input
+                id="review-label"
+                required
+                placeholder="e.g. local QA review"
+                maxlength="500"
+              /><label for="review-outcome">Review outcome</label
+              ><select id="review-outcome">
+                <option value="REVIEW_ACCEPTED">Accept evidence review</option>
+                <option value="REVIEW_REJECTED">
+                  Reject evidence review
+                </option></select
+              ><button class="primary" id="ack-button" type="submit">
+                Record local acknowledgement
+              </button>
+            </form>
+          </section>
+          <details id="attachments-panel" class="source-details">
+            <summary>Source attachments & approvals</summary>
+            <p>
+              Local QA approval is simulated authority over synthetic fixtures
+              only. Bytes must be attached before approval.
+            </p>
+            <div id="attachment-list"></div>
+            <form id="attachment-form">
+              <label for="attachment-json"
+                >Synthetic attachment JSON (advanced API shape)</label
+              ><textarea
+                id="attachment-json"
+                rows="8"
+                placeholder="Select 'Use as template' on an existing source, or follow docs/demo.md."
+              ></textarea
+              ><button class="secondary" type="submit">
+                Attach unapproved source
+              </button>
+            </form>
+          </details>
+          <details class="source-details">
+            <summary>Record history</summary>
+            <div id="record-history"></div>
+          </details>
+        </section>
+      </div>
+      <section class="notification-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">SEPARATE CLOCK / NEVER WAIT FOR DISPOSITION</p>
+            <h2>Notification obligations</h2>
+          </div>
+          <span class="tag">DEADLINE ORDER</span>
+        </div>
+        <p class="muted">
+          Explicit synthetic deadlines, not legal calculations. All displayed
+          times: Europe/Berlin.
+        </p>
+        <div id="notification-list"></div>
+        <details class="source-details">
+          <summary>
+            Qualified notification assessment · Regulatory role only
+          </summary>
+          <form id="notification-form" class="notification-form">
+            <label>Case ID<input id="notice-case" required /></label
+            ><label
+              >Reportability<select id="notice-reportability">
+                <option>UNKNOWN</option>
+                <option>REPORTABLE</option>
+                <option>NOT_REQUIRED</option>
+              </select></label
+            ><label
+              >Explicit deadline (ISO 8601 with offset)<input
+                id="notice-deadline"
+                placeholder="2030-01-03T12:00:00+01:00" /></label
+            ><label
+              >Status<select id="notice-status">
+                <option>PENDING</option>
+                <option>SENT</option>
+              </select></label
+            ><label class="wide"
+              >Assessment basis / external receipt reference<input
+                id="notice-basis"
+                required
+                maxlength="500" /></label
+            ><button class="secondary" type="submit">
+              Record assessment only — sends nothing
+            </button>
+          </form>
+        </details>
+      </section>
+      <footer>
+        <span>Built to make uncertainty visible.</span
+        ><span
+          >No AI-generated clinical rules · No external model calls · Synthetic
+          only</span
+        >
+      </footer>
+    </main>
+    <div
+      id="status"
+      class="toast"
+      role="status"
+      aria-live="polite"
+      hidden
+    ></div>
+  </body>
+</html>
